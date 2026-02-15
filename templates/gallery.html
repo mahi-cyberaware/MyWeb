@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Media Gallery{% endblock %}
+{% block content %}
+<h1>Media Gallery</h1>
+
+<div class="gallery-tabs">
+    <button class="tab active" data-tab="images">Images</button>
+    <button class="tab" data-tab="videos">Videos</button>
+    <button class="tab" data-tab="code">Code Files</button>
+</div>
+
+<div class="gallery-content">
+    <!-- Images Tab -->
+    <div class="tab-pane active" id="images">
+        {% if images %}
+            <div class="file-grid">
+            {% for file in images %}
+                <div class="file-card">
+                    <img src="{{ url_for('uploaded_file', filename=file.stored_filename) }}" alt="{{ file.filename }}" style="max-width:100%; max-height:150px; object-fit:cover;">
+                    <p>{{ file.filename }} ({{ (file.size/1024)|round }} KB)</p>
+                    {% if file.description %}<p><em>{{ file.description }}</em></p>{% endif %}
+                    <a href="{{ url_for('uploaded_file', filename=file.stored_filename) }}" download>Download</a>
+                </div>
+            {% endfor %}
+            </div>
+            <!-- Pagination for images -->
+            {% include '_gallery_pagination.html' with context %}
+        {% else %}
+            <p>No images found.</p>
+        {% endif %}
+    </div>
+
+    <!-- Videos Tab -->
+    <div class="tab-pane" id="videos">
+        {% if videos %}
+            <div class="file-grid">
+            {% for file in videos %}
+                <div class="file-card">
+                    <video controls style="max-width:100%; max-height:200px;">
+                        <source src="{{ url_for('uploaded_file', filename=file.stored_filename) }}">
+                        Your browser does not support the video tag.
+                    </video>
+                    <p>{{ file.filename }} ({{ (file.size/1024)|round }} KB)</p>
+                    {% if file.description %}<p><em>{{ file.description }}</em></p>{% endif %}
+                    <a href="{{ url_for('uploaded_file', filename=file.stored_filename) }}" download>Download</a>
+                </div>
+            {% endfor %}
+            </div>
+            <!-- Pagination for videos -->
+            {% include '_gallery_pagination.html' with context %}
+        {% else %}
+            <p>No videos found.</p>
+        {% endif %}
+    </div>
+
+    <!-- Code Files Tab -->
+    <div class="tab-pane" id="code">
+        {% if code_files %}
+            <div class="file-grid">
+            {% for file in code_files %}
+                <div class="file-card">
+                    <p><strong>{{ file.filename }}</strong> ({{ (file.size/1024)|round }} KB)</p>
+                    {% if file.description %}<p><em>{{ file.description }}</em></p>{% endif %}
+                    <!-- Optionally show a preview for text files -->
+                    {% if file.filename.endswith(('.py','.js','.html','.css','.txt','.md')) %}
+                        <pre style="max-height:150px; overflow:auto;"><code>{{ url_for('uploaded_file', filename=file.stored_filename) }}</code></pre>
+                    {% endif %}
+                    <a href="{{ url_for('uploaded_file', filename=file.stored_filename) }}" download>Download</a>
+                </div>
+            {% endfor %}
+            </div>
+            <!-- Pagination for code files -->
+            {% include '_gallery_pagination.html' with context %}
+        {% else %}
+            <p>No code files found.</p>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        document.getElementById(tab.dataset.tab).classList.add('active');
+    });
+});
+</script>
+{% endblock %}

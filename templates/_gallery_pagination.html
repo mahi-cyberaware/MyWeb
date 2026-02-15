@@ -1,0 +1,22 @@
+{% if images_pagination and images_pagination.pages > 1 %}
+<div class="pagination">
+    {% if images_pagination.has_prev %}
+        <a href="{{ url_for('gallery', page=images_pagination.prev_num, tab='images') }}">&laquo; Previous</a>
+    {% endif %}
+    {% for page_num in images_pagination.iter_pages() %}
+        {% if page_num %}
+            {% if page_num == images_pagination.page %}
+                <strong>{{ page_num }}</strong>
+            {% else %}
+                <a href="{{ url_for('gallery', page=page_num, tab='images') }}">{{ page_num }}</a>
+            {% endif %}
+        {% else %}
+            <span>...</span>
+        {% endif %}
+    {% endfor %}
+    {% if images_pagination.has_next %}
+        <a href="{{ url_for('gallery', page=images_pagination.next_num, tab='images') }}">Next &raquo;</a>
+    {% endif %}
+</div>
+{% endif %}
+<!-- similarly for videos_pagination and code_pagination (you can use conditionals) -->

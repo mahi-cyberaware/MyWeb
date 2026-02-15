@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<div class="hero">
+    <h1>Mahi CyberAware</h1>
+    <p class="subtitle">Cybersecurity & Penetration Testing Tools Developer</p>
+    <p class="description">Explore my collection of security tools, code snippets, tutorials, and insights into the world of ethical hacking and cybersecurity.</p>
+    <div class="hero-buttons">
+        <a href="{{ url_for('tools') }}" class="btn primary">View Tools</a>
+        <a href="{{ url_for('blog') }}" class="btn secondary">Read Blog</a>
+    </div>
+</div>
+
+<div class="stats">
+    <div class="stat-card">
+        <span class="stat-number">{{ tool_count }}</span>
+        <span class="stat-label">Security Tools</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-number">{{ file_count }}</span>
+        <span class="stat-label">Files</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-number">{{ blog_count }}</span>
+        <span class="stat-label">Blog Posts</span>
+    </div>
+</div>
+{% endblock %}

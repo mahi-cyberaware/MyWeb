@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Edit Tool{% endblock %}
+{% block content %}
+<h1>Edit Tool: {{ tool.title }}</h1>
+
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div>
+        {{ form.title.label }}<br>
+        {{ form.title(size=50) }}
+    </div>
+    <div>
+        {{ form.description.label }}<br>
+        {{ form.description(rows=5, cols=50) }}
+    </div>
+    <div>
+        {{ form.category.label }}<br>
+        {{ form.category() }}
+    </div>
+    <div>
+        {{ form.language.label }}<br>
+        {{ form.language(size=30) }}
+    </div>
+    <div>
+        {{ form.code.label }}<br>
+        {{ form.code(rows=10, cols=50) }}
+    </div>
+    <div>
+        {{ form.github_url.label }}<br>
+        {{ form.github_url(size=50) }}
+    </div>
+    <button type="submit">Update Tool</button>
+</form>
+{% endblock %}
