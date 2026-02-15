@@ -14,7 +14,7 @@ from markdown.extensions.fenced_code import FencedCodeExtension
 from markdown.extensions.codehilite import CodeHiliteExtension
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your-secret-key-change-this'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-key-change-me')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024
@@ -29,7 +29,7 @@ app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = 'myprogrammwork1@gmail.com'
-app.config['MAIL_PASSWORD'] = 'yubm zwfd mdwc ldfw'
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', '')
 app.config['MAIL_DEFAULT_SENDER'] = 'myprogrammwork1@gmail.com'
 
 mail = Mail(app)
@@ -81,6 +81,19 @@ def admin_required(f):
             return redirect(url_for('home'))
         return f(*args, **kwargs)
     return decorated_function
+
+# ---------- TEMPORARY ROUTE TO SET ADMIN PASSWORD (DELETE AFTER USE) ----------
+@app.route('/force-change-password')
+def force_change_password():
+    """ONE-TIME route to set admin password - DELETE AFTER USE!"""
+    user = User.query.filter_by(username='admin').first()
+    if user:
+        new_password = 'PasswordMysite@8080#'
+        user.password_hash = generate_password_hash(new_password)
+        db.session.commit()
+        return f"✅ Admin password successfully changed to: <strong>{new_password}</strong><br><br>⚠️ **DELETE THIS ROUTE NOW!**"
+    return "❌ Admin user not found."
+# ---------- END TEMPORARY ROUTE ----------
 
 # ---------- Public Routes ----------
 @app.route('/')
