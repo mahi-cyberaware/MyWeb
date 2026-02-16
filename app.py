@@ -6,12 +6,11 @@ import cloudinary.uploader
 from flask import Flask, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_mail import Mail, Message
+from flask_mail import Mail
 from itsdangerous import URLSafeTimedSerializer
 from models import db, User, Tool, BlogPost, GalleryFile
 from forms import (ToolForm, BlogForm, UploadFileForm,
-                   RegistrationForm, LoginForm, ChangePasswordForm, ContactForm,
-                   ForgotPasswordForm, ResetPasswordForm)
+                   RegistrationForm, LoginForm, ChangePasswordForm, ContactForm)
 from markdown.extensions.fenced_code import FencedCodeExtension
 from markdown.extensions.codehilite import CodeHiliteExtension
 
@@ -21,12 +20,11 @@ app = Flask(__name__)
 
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-key-change-me')
 
-# Supabase PostgreSQL
 database_url = os.environ.get('DATABASE_URL')
 if database_url and database_url.startswith('postgres://'):
     database_url = database_url.replace('postgres://', 'postgresql://', 1)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = database_url or 'sqlite:///site.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Cloudinary
@@ -37,7 +35,7 @@ cloudinary.config(
     secure=True
 )
 
-# Email Config
+# Mail
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
@@ -50,30 +48,15 @@ db.init_app(app)
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
-login_manager.login_message = 'Please log in to access this page.'
 
 serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
-# ================== MARKDOWN FILTER ==================
-
-@app.template_filter('markdown')
-def render_markdown(text):
-    if not text:
-        return ''
-    return markdown.markdown(text, extensions=[
-        FencedCodeExtension(),
-        CodeHiliteExtension(linenums=False),
-        'tables',
-        'nl2br'
-    ])
-
-# ================== DATABASE INIT + AUTO ADMIN ==================
+# ================== DATABASE INIT ==================
 
 @app.before_request
 def initialize_database():
     db.create_all()
 
-    # Auto-create admin if not exists
     if not User.query.filter_by(role="admin").first():
         admin = User(
             username="admin",
@@ -83,7 +66,6 @@ def initialize_database():
         )
         db.session.add(admin)
         db.session.commit()
-        print("Admin user created.")
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -111,16 +93,34 @@ def home():
                            file_count=file_count,
                            blog_count=blog_count)
 
+@app.route('/tools')
+def tools():
+    tools = Tool.query.order_by(Tool.id.desc()).all()
+    return render_template('tools.html', tools=tools)
+
+@app.route('/gallery')
+def gallery():
+    files = GalleryFile.query.order_by(GalleryFile.id.desc()).all()
+    return render_template('gallery.html', files=files)
+
 @app.route('/blog')
 def blog():
     posts = BlogPost.query.filter_by(published=True)\
-        .order_by(BlogPost.date_posted.desc()).all()
+        .order_by(BlogPost.id.desc()).all()
     return render_template('blog.html', posts=posts)
 
 @app.route('/blog/<slug>')
 def blog_post(slug):
     post = BlogPost.query.filter_by(slug=slug, published=True).first_or_404()
     return render_template('blog_post.html', post=post)
+
+@app.route('/contact', methods=['GET', 'POST'])
+def contact():
+    form = ContactForm()
+    if form.validate_on_submit():
+        flash("Message sent successfully!", "success")
+        return redirect(url_for('contact'))
+    return render_template('contact.html', form=form)
 
 # ================== AUTH ==================
 
@@ -146,7 +146,6 @@ def login():
         user = User.query.filter_by(username=form.username.data).first()
         if user and check_password_hash(user.password_hash, form.password.data):
             login_user(user)
-            flash('Logged in successfully.', 'success')
             return redirect(url_for('home'))
         flash('Invalid credentials.', 'danger')
     return render_template('login.html', form=form)
@@ -155,10 +154,31 @@ def login():
 @login_required
 def logout():
     logout_user()
-    flash('Logged out.', 'info')
     return redirect(url_for('home'))
 
-# ================== ADMIN BLOG ==================
+@app.route('/change-password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    form = ChangePasswordForm()
+    if form.validate_on_submit():
+        if check_password_hash(current_user.password_hash, form.current_password.data):
+            current_user.password_hash = generate_password_hash(form.new_password.data)
+            db.session.commit()
+            flash("Password updated successfully.", "success")
+            return redirect(url_for('home'))
+        else:
+            flash("Current password incorrect.", "danger")
+    return render_template('change_password.html', form=form)
+
+# ================== ADMIN ==================
+
+@app.route('/admin')
+@login_required
+@admin_required
+def admin_dashboard():
+    return render_template('admin/dashboard.html')
+
+# ================== BLOG ADMIN ==================
 
 @app.route('/admin/blog/add', methods=['GET', 'POST'])
 @login_required
@@ -184,23 +204,13 @@ def add_blog():
 
         db.session.add(post)
         db.session.commit()
+
         flash('Blog post added.', 'success')
-        return redirect(url_for('home'))
+        return redirect(url_for('admin_dashboard'))
 
     return render_template('admin/add_blog.html', form=form)
 
-@app.route('/admin/upload-inline-image', methods=['POST'])
-@login_required
-@admin_required
-def upload_inline_image():
-    file = request.files.get('file')
-    if not file:
-        return jsonify({'error': 'No file'}), 400
-
-    upload_result = cloudinary.uploader.upload(file)
-    return jsonify({'location': upload_result["secure_url"]})
-
-# ================== GALLERY ==================
+# ================== GALLERY ADMIN ==================
 
 @app.route('/admin/upload', methods=['GET', 'POST'])
 @login_required
@@ -223,14 +233,9 @@ def upload_file():
         db.session.commit()
 
         flash('File uploaded successfully.', 'success')
-        return redirect(url_for('home'))
+        return redirect(url_for('admin_dashboard'))
 
     return render_template('admin/upload_file.html', form=form)
-
-@app.route('/uploads/<path:url>')
-@login_required
-def uploaded_file(url):
-    return redirect(url)
 
 # ================== RUN ==================
 
