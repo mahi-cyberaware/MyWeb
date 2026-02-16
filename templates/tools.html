@@ -1,83 +1,23 @@
 {% extends "base.html" %}
-{% block title %}Security Tools{% endblock %}
+{% block title %}Tools{% endblock %}
 {% block content %}
-<h1 class="center">Security Tools</h1>
 
-<!-- Search Bar -->
-<div class="search-container">
-    <input type="text" id="search-input" placeholder="Search tools...">
-</div>
+<h1 class="center">Tools</h1>
 
-<div class="tool-filters">
-    <button class="filter active" data-filter="all">All Tools</button>
-    {% for category in categories %}
-        <button class="filter" data-filter="{{ category }}">{{ category }}</button>
-    {% endfor %}
-</div>
-
-<div class="tools-grid">
-    {% for tool in tools %}
-    <div class="tool-card searchable-item" data-category="{{ tool.category }}">
-        <div class="tool-header">
+{% if tools %}
+    <div class="card-grid">
+        {% for tool in tools %}
+        <div class="card">
             <h3>{{ tool.title }}</h3>
-            <span class="category-badge">{{ tool.category }}</span>
+            <p>{{ tool.description }}</p>
+            <a href="{{ url_for('tool_detail', id=tool.id) }}" class="btn primary">
+                View Details
+            </a>
         </div>
-        <p class="tool-description">{{ tool.description }}</p>
-        {% if tool.code %}
-        <div class="code-block-container">
-            <pre><code class="language-{{ tool.language|lower }}">{{ tool.code }}</code></pre>
-        </div>
-        {% endif %}
-        <div class="tool-footer">
-            <span class="tool-date">{{ tool.date_posted.strftime('%d/%m/%Y') }}</span>
-            {% if tool.github_url %}
-                <a href="{{ tool.github_url }}" target="_blank" class="github-btn">GitHub</a>
-            {% endif %}
-        </div>
+        {% endfor %}
     </div>
-    {% else %}
-    <p class="center">No tools yet.</p>
-    {% endfor %}
-</div>
-
-<!-- Pagination -->
-{% if pagination.pages > 1 %}
-<div class="pagination">
-    {% if pagination.has_prev %}
-        <a href="{{ url_for('tools', page=pagination.prev_num) }}">&laquo; Previous</a>
-    {% endif %}
-    {% for page_num in pagination.iter_pages() %}
-        {% if page_num %}
-            {% if page_num == pagination.page %}
-                <strong>{{ page_num }}</strong>
-            {% else %}
-                <a href="{{ url_for('tools', page=page_num) }}">{{ page_num }}</a>
-            {% endif %}
-        {% else %}
-            <span>...</span>
-        {% endif %}
-    {% endfor %}
-    {% if pagination.has_next %}
-        <a href="{{ url_for('tools', page=pagination.next_num) }}">Next &raquo;</a>
-    {% endif %}
-</div>
+{% else %}
+    <p class="center">No tools available.</p>
 {% endif %}
 
-<script>
-// Filter buttons
-document.querySelectorAll('.filter').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.filter').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const filter = btn.dataset.filter;
-        document.querySelectorAll('.tool-card').forEach(card => {
-            if (filter === 'all' || card.dataset.category === filter) {
-                card.style.display = 'block';
-            } else {
-                card.style.display = 'none';
-            }
-        });
-    });
-});
-</script>
 {% endblock %}
