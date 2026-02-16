@@ -6,16 +6,25 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_mail import Mail, Message
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from models import db, User, Tool, BlogPost, GalleryFile, BlogImage
 from forms import (ToolForm, BlogForm, UploadFileForm, 
-                   RegistrationForm, LoginForm, ChangePasswordForm, ContactForm)
+                   RegistrationForm, LoginForm, ChangePasswordForm, ContactForm,
+                   ForgotPasswordForm, ResetPasswordForm)
 from datetime import datetime
 from markdown.extensions.fenced_code import FencedCodeExtension
 from markdown.extensions.codehilite import CodeHiliteExtension
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-key-change-me')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+
+# Database configuration – use PostgreSQL if DATABASE_URL is set, else SQLite
+database_url = os.environ.get('DATABASE_URL')
+if database_url and database_url.startswith('postgres://'):
+    database_url = database_url.replace('postgres://', 'postgresql://', 1)
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url or 'sqlite:///site.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -38,6 +47,9 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 login_manager.login_message = 'Please log in to access this page.'
 
+# Serializer for password reset tokens
+serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+
 # Markdown filter for templates
 @app.template_filter('markdown')
 def render_markdown(text):
@@ -50,7 +62,7 @@ def render_markdown(text):
         'nl2br'
     ])
 
-# Initialize database and admin
+# Initialize database and admin (runs only once)
 _first_request_done = False
 
 @app.before_request
@@ -58,8 +70,9 @@ def before_first_request():
     global _first_request_done
     if not _first_request_done:
         db.create_all()
+        # Check if admin exists, if not create with default password
         if not User.query.filter_by(username='admin').first():
-            hashed = generate_password_hash('admin')
+            hashed = generate_password_hash('admin')  # default, will be changed later
             admin = User(username='admin', 
                          email='admin@localhost', 
                          password_hash=hashed,
@@ -151,9 +164,9 @@ def contact():
                       body=f"From: {form.name.data} <{form.email.data}>\n\n{form.message.data}")
         try:
             mail.send(msg)
-            flash('Your message has been sent. Thank you!')
+            flash('Your message has been sent. Thank you!', 'success')
         except Exception as e:
-            flash('Error sending message. Please try again later.')
+            flash('Error sending message. Please try again later.', 'danger')
         return redirect(url_for('contact'))
     return render_template('contact.html', form=form)
 
@@ -180,7 +193,7 @@ def register():
         user = User(username=form.username.data, email=form.email.data, password_hash=hashed)
         db.session.add(user)
         db.session.commit()
-        flash('Registration successful! You can now log in.')
+        flash('Registration successful! You can now log in.', 'success')
         return redirect(url_for('login'))
     return render_template('register.html', form=form)
 
@@ -194,17 +207,17 @@ def login():
         if user and check_password_hash(user.password_hash, form.password.data):
             login_user(user)
             next_page = request.args.get('next')
-            flash('Logged in successfully.')
+            flash('Logged in successfully.', 'success')
             return redirect(next_page) if next_page else redirect(url_for('home'))
         else:
-            flash('Invalid username or password.')
+            flash('Invalid username or password.', 'danger')
     return render_template('login.html', form=form)
 
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
-    flash('You have been logged out.')
+    flash('You have been logged out.', 'info')
     return redirect(url_for('home'))
 
 @app.route('/change-password', methods=['GET', 'POST'])
@@ -215,11 +228,58 @@ def change_password():
         if check_password_hash(current_user.password_hash, form.old_password.data):
             current_user.password_hash = generate_password_hash(form.new_password.data)
             db.session.commit()
-            flash('Your password has been updated.')
+            flash('Your password has been updated.', 'success')
             return redirect(url_for('home'))
         else:
-            flash('Old password is incorrect.')
+            flash('Old password is incorrect.', 'danger')
     return render_template('change_password.html', form=form)
+
+# ---------- Password Reset ----------
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    form = ForgotPasswordForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            token = serializer.dumps(user.email, salt='password-reset-salt')
+            reset_url = url_for('reset_password', token=token, _external=True)
+            msg = Message('Password Reset Request',
+                          recipients=[user.email],
+                          body=f'Click the link to reset your password: {reset_url}\n\nIf you did not request this, ignore this email.')
+            try:
+                mail.send(msg)
+                flash('A password reset link has been sent to your email.', 'info')
+            except Exception as e:
+                flash('Error sending email. Please try again later.', 'danger')
+        else:
+            # Don't reveal if email exists
+            flash('If that email is registered, a reset link will be sent.', 'info')
+        return redirect(url_for('login'))
+    return render_template('forgot_password.html', form=form)
+
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    try:
+        email = serializer.loads(token, salt='password-reset-salt', max_age=3600)  # 1 hour
+    except SignatureExpired:
+        flash('The reset link has expired. Please request a new one.', 'danger')
+        return redirect(url_for('forgot_password'))
+    except BadSignature:
+        flash('Invalid reset link.', 'danger')
+        return redirect(url_for('forgot_password'))
+
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=email).first()
+        if user:
+            user.password_hash = generate_password_hash(form.password.data)
+            db.session.commit()
+            flash('Your password has been reset. You can now log in.', 'success')
+            return redirect(url_for('login'))
+        else:
+            flash('User not found.', 'danger')
+            return redirect(url_for('forgot_password'))
+    return render_template('reset_password.html', form=form, token=token)
 
 # ---------- Admin Panel ----------
 @app.route('/admin')
@@ -248,7 +308,7 @@ def add_tool():
         )
         db.session.add(tool)
         db.session.commit()
-        flash('Tool added successfully')
+        flash('Tool added successfully', 'success')
         return redirect(url_for('admin_dashboard'))
     return render_template('admin/add_tool.html', form=form)
 
@@ -261,7 +321,7 @@ def edit_tool(id):
     if form.validate_on_submit():
         form.populate_obj(tool)
         db.session.commit()
-        flash('Tool updated')
+        flash('Tool updated', 'success')
         return redirect(url_for('admin_dashboard'))
     return render_template('admin/edit_tool.html', form=form, tool=tool)
 
@@ -272,7 +332,7 @@ def delete_tool(id):
     tool = Tool.query.get_or_404(id)
     db.session.delete(tool)
     db.session.commit()
-    flash('Tool deleted')
+    flash('Tool deleted', 'success')
     return redirect(url_for('admin_dashboard'))
 
 # Blog management
@@ -302,7 +362,7 @@ def add_blog():
         )
         db.session.add(post)
         db.session.commit()
-        flash('Blog post added')
+        flash('Blog post added', 'success')
         return redirect(url_for('admin_dashboard'))
     return render_template('admin/add_blog.html', form=form)
 
@@ -329,7 +389,7 @@ def edit_blog(id):
 
         form.populate_obj(post)
         db.session.commit()
-        flash('Blog post updated')
+        flash('Blog post updated', 'success')
         return redirect(url_for('admin_dashboard'))
     return render_template('admin/edit_blog.html', form=form, post=post)
 
@@ -345,7 +405,7 @@ def delete_blog(id):
             os.remove(image_path)
     db.session.delete(post)
     db.session.commit()
-    flash('Blog post deleted')
+    flash('Blog post deleted', 'success')
     return redirect(url_for('admin_dashboard'))
 
 # Route for inline image upload (for blog content)
@@ -392,7 +452,7 @@ def upload_file():
         )
         db.session.add(file_record)
         db.session.commit()
-        flash('File uploaded successfully')
+        flash('File uploaded successfully', 'success')
         return redirect(url_for('admin_dashboard'))
     return render_template('admin/upload_file.html', form=form)
 
@@ -406,8 +466,16 @@ def delete_file(id):
         os.remove(file_path)
     db.session.delete(file_record)
     db.session.commit()
-    flash('File deleted')
+    flash('File deleted', 'success')
     return redirect(url_for('admin_dashboard'))
+
+# Route for upload progress (dummy, progress handled client-side)
+@app.route('/upload-progress', methods=['POST'])
+@login_required
+@admin_required
+def upload_progress():
+    # This is just a placeholder; actual upload handled elsewhere
+    return jsonify({'status': 'ok'})
 
 if __name__ == '__main__':
     app.run(debug=True)

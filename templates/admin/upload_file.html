@@ -1,23 +1,28 @@
 {% extends "base.html" %}
 {% block title %}Upload File{% endblock %}
 {% block content %}
-<h1>Upload Files</h1>
+<h1 class="center">Upload Files</h1>
 
-<form method="POST" enctype="multipart/form-data">
-    {{ form.hidden_tag() }}
-    <div>
-        {{ form.file_type.label }}<br>
-        {{ form.file_type() }}
+<div class="form-container">
+    <form method="POST" enctype="multipart/form-data" id="uploadForm" action="{{ url_for('upload_file') }}">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.file_type.label }}
+            {{ form.file_type(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.description.label }}
+            {{ form.description(rows=3, class="form-control", placeholder="Brief description") }}
+        </div>
+        <div class="form-group">
+            {{ form.file.label }}
+            {{ form.file(class="form-control") }}
+            <small>Supported: Images, Videos, Code files, Documents (all file types allowed)</small>
+        </div>
+        <button type="submit" class="btn primary">Upload File</button>
+    </form>
+    <div id="progress-bar" class="progress-bar" style="display:none;">
+        <div id="progress-fill" class="progress-bar-fill"></div>
     </div>
-    <div>
-        {{ form.description.label }}<br>
-        {{ form.description(rows=3, cols=40, placeholder="Brief description") }}
-    </div>
-    <div>
-        {{ form.file.label }}<br>
-        {{ form.file() }}<br>
-        <small>Supported: Images, Videos, Code files, Documents (all file types allowed)</small>
-    </div>
-    <button type="submit">Upload File</button>
-</form>
+</div>
 {% endblock %}

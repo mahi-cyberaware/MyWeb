@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mahi CyberAware - {% block title %}{% endblock %}</title>
+    <link rel="icon" href="{{ url_for('static', filename='assets/logo.png') }}" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
@@ -15,17 +16,18 @@
             background-repeat: no-repeat;
         }
         main {
-            background-color: rgba(var(--bg-primary-rgb), 0.9);
+            background-color: rgba(var(--bg-primary-rgb), 0.85);
             backdrop-filter: blur(10px);
             border-radius: 1rem;
             padding: 2rem;
+            margin: 2rem auto;
         }
     </style>
 </head>
 <body>
     <header>
         <div class="logo">
-            <img src="{{ url_for('static', filename='assets/logo.png') }}" alt="Mahi CyberAware" height="40">
+            <img src="{{ url_for('static', filename='assets/logo.png') }}" alt="Mahi CyberAware" height="60"> <!-- increased size -->
         </div>
         <nav>
             <a href="{{ url_for('home') }}">Home</a>
@@ -48,11 +50,11 @@
     </header>
 
     <main>
-        {% with messages = get_flashed_messages() %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 <ul class="flashes">
-                {% for message in messages %}
-                    <li>{{ message }}</li>
+                {% for category, message in messages %}
+                    <li class="flash-{{ category }}">{{ message }}</li>
                 {% endfor %}
                 </ul>
             {% endif %}
@@ -62,12 +64,18 @@
 
     <footer>
         <div class="footer-content">
-            <p>&copy; 2024 Mahi CyberAware. All rights reserved.</p>
+            <p>&copy; 2026 Mahi CyberAware. All rights reserved.</p>
             <p>Cybersecurity & Penetration Testing</p>
             <div class="social-links">
-                <a href="https://github.com/mahi-cyberaware" target="_blank">GitHub</a>
-                <a href="#" target="_blank">Telegram</a>
-                <a href="#" target="_blank">Twitter</a>
+                <a href="https://github.com/mahi-cyberaware" target="_blank">
+                    <img src="{{ url_for('static', filename='assets/github.png') }}" alt="GitHub" width="32" height="32">
+                </a>
+                <a href="#" target="_blank">
+                    <img src="{{ url_for('static', filename='assets/telegram.png') }}" alt="Telegram" width="32" height="32">
+                </a>
+                <a href="#" target="_blank">
+                    <img src="{{ url_for('static', filename='assets/twitter.png') }}" alt="Twitter" width="32" height="32">
+                </a>
             </div>
         </div>
     </footer>

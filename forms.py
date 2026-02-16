@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileField, FileAllowed, FileRequired
+from flask_wtf.file import FileField, FileRequired, FileAllowed
 from wtforms import StringField, TextAreaField, SelectField, BooleanField, URLField, PasswordField, EmailField
 from wtforms.validators import DataRequired, Optional, URL, Email, EqualTo, Length, ValidationError
 from models import User
@@ -35,7 +35,6 @@ class UploadFileForm(FlaskForm):
     ], validators=[DataRequired()])
     file = FileField('File', validators=[FileRequired()])
 
-# Registration, Login, ChangePassword, ContactForm remain the same as before
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=3, max=80)])
     email = EmailField('Email', validators=[DataRequired(), Email()])
@@ -66,3 +65,10 @@ class ContactForm(FlaskForm):
     email = EmailField('Your Email', validators=[DataRequired(), Email()])
     subject = StringField('Subject', validators=[DataRequired()])
     message = TextAreaField('Message', validators=[DataRequired()])
+
+class ForgotPasswordForm(FlaskForm):
+    email = EmailField('Email', validators=[DataRequired(), Email()])
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField('New Password', validators=[DataRequired(), Length(min=6)])
+    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
