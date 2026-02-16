@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% block title %}Admin Panel{% endblock %}
 {% block content %}
-<h1>Admin Panel</h1>
+<h1 class="center">Admin Panel</h1>
 
 <div class="admin-actions">
-    <a href="{{ url_for('add_tool') }}" class="btn">+ Add Tool</a>
-    <a href="{{ url_for('add_blog') }}" class="btn">+ Add Blog Post</a>
-    <a href="{{ url_for('upload_file') }}" class="btn">Upload Files</a>
+    <a href="{{ url_for('add_tool') }}" class="btn primary">+ Add Tool</a>
+    <a href="{{ url_for('add_blog') }}" class="btn primary">+ Add Blog Post</a>
+    <a href="{{ url_for('upload_file') }}" class="btn primary">Upload Files</a>
 </div>
 
 <h2>Recent Tools</h2>

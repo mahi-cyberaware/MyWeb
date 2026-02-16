@@ -1,34 +1,51 @@
 {% extends "base.html" %}
 {% block title %}Edit Tool{% endblock %}
 {% block content %}
-<h1>Edit Tool: {{ tool.title }}</h1>
+<h1 class="center">Edit Tool: {{ tool.title }}</h1>
 
-<form method="POST">
-    {{ form.hidden_tag() }}
-    <div>
-        {{ form.title.label }}<br>
-        {{ form.title(size=50) }}
-    </div>
-    <div>
-        {{ form.description.label }}<br>
-        {{ form.description(rows=5, cols=50) }}
-    </div>
-    <div>
-        {{ form.category.label }}<br>
-        {{ form.category() }}
-    </div>
-    <div>
-        {{ form.language.label }}<br>
-        {{ form.language(size=30) }}
-    </div>
-    <div>
-        {{ form.code.label }}<br>
-        {{ form.code(rows=10, cols=50) }}
-    </div>
-    <div>
-        {{ form.github_url.label }}<br>
-        {{ form.github_url(size=50) }}
-    </div>
-    <button type="submit">Update Tool</button>
-</form>
+<div class="form-container">
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.title.label }}
+            {{ form.title(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.description.label }}
+            {{ form.description(class="form-control", rows=6) }}
+        </div>
+        <div class="form-group">
+            {{ form.category.label }}
+            {{ form.category(class="form-control", id="category_select") }}
+        </div>
+        <div class="form-group" id="custom_category_group" style="display: none;">
+            <label for="custom_category">New Category Name</label>
+            <input type="text" name="custom_category" id="custom_category" class="form-control" placeholder="Enter new category">
+        </div>
+        <div class="form-group">
+            {{ form.language.label }}
+            {{ form.language(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.code.label }}
+            {{ form.code(class="form-control", rows=12) }}
+        </div>
+        <div class="form-group">
+            {{ form.github_url.label }}
+            {{ form.github_url(class="form-control") }}
+        </div>
+        <button type="submit" class="btn primary">Update Tool</button>
+    </form>
+</div>
+
+<script>
+document.getElementById('category_select').addEventListener('change', function() {
+    const customGroup = document.getElementById('custom_category_group');
+    if (this.value === 'Other') {
+        customGroup.style.display = 'block';
+    } else {
+        customGroup.style.display = 'none';
+    }
+});
+</script>
 {% endblock %}

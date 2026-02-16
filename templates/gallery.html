@@ -17,12 +17,12 @@
                 <div class="file-grid">
                 {% for file in images %}
                     <div class="file-card">
-                        <img src="{{ url_for('uploaded_file', filename=file.stored_filename) }}" alt="{{ file.filename }}">
+                        <img src="{{ file.stored_filename }}" alt="{{ file.filename }}">
                         <div class="file-info">
                             <div class="file-name">{{ file.filename }}</div>
                             <div class="file-meta">{{ (file.size/1024)|round }} KB</div>
                             {% if file.description %}<div class="file-description">{{ file.description }}</div>{% endif %}
-                            <a href="{{ url_for('uploaded_file', filename=file.stored_filename) }}" download class="download-btn">Download</a>
+                            <a href="{{ file.stored_filename }}" target="_blank" download class="download-btn">Download</a>
                         </div>
                     </div>
                 {% endfor %}
@@ -39,14 +39,14 @@
                 {% for file in videos %}
                     <div class="file-card">
                         <video controls>
-                            <source src="{{ url_for('uploaded_file', filename=file.stored_filename) }}">
+                            <source src="{{ file.stored_filename }}" type="video/mp4">
                             Your browser does not support the video tag.
                         </video>
                         <div class="file-info">
                             <div class="file-name">{{ file.filename }}</div>
                             <div class="file-meta">{{ (file.size/1024)|round }} KB</div>
                             {% if file.description %}<div class="file-description">{{ file.description }}</div>{% endif %}
-                            <a href="{{ url_for('uploaded_file', filename=file.stored_filename) }}" download class="download-btn">Download</a>
+                            <a href="{{ file.stored_filename }}" target="_blank" download class="download-btn">Download</a>
                         </div>
                     </div>
                 {% endfor %}
@@ -66,7 +66,7 @@
                             <div class="file-name">{{ file.filename }}</div>
                             <div class="file-meta">{{ (file.size/1024)|round }} KB</div>
                             {% if file.description %}<div class="file-description">{{ file.description }}</div>{% endif %}
-                            <a href="{{ url_for('uploaded_file', filename=file.stored_filename) }}" download class="download-btn">Download</a>
+                            <a href="{{ file.stored_filename }}" target="_blank" download class="download-btn">Download</a>
                         </div>
                     </div>
                 {% endfor %}
@@ -77,6 +77,16 @@
         </div>
     </div>
 </div>
+
+<!-- Pagination (simplified) -->
+{% if images_pagination and images_pagination.pages > 1 %}
+<div class="pagination">
+    {% if images_pagination.has_prev %}
+        <a href="{{ url_for('gallery', page=images_pagination.prev_num) }}">&laquo; Previous</a>
+    {% endif %}
+    ...
+</div>
+{% endif %}
 
 <script>
 document.querySelectorAll('.tab').forEach(tab => {

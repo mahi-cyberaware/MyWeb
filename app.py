@@ -2,40 +2,41 @@ import os
 import markdown
 import cloudinary
 import cloudinary.uploader
-
-from flask import Flask, render_template, redirect, url_for, flash, request, jsonify
+from flask import Flask, render_template, redirect, url_for, flash, request, abort, send_file, jsonify
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_mail import Mail
-from itsdangerous import URLSafeTimedSerializer
+from werkzeug.utils import secure_filename
+from flask_mail import Mail, Message
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from models import db, User, Tool, BlogPost, GalleryFile
 from forms import (ToolForm, BlogForm, UploadFileForm,
-                   RegistrationForm, LoginForm, ChangePasswordForm, ContactForm)
+                   RegistrationForm, LoginForm, ChangePasswordForm, ContactForm,
+                   ForgotPasswordForm, ResetPasswordForm)
+from datetime import datetime
 from markdown.extensions.fenced_code import FencedCodeExtension
 from markdown.extensions.codehilite import CodeHiliteExtension
 
 app = Flask(__name__)
 
-# ================== BASIC CONFIG ==================
-
+# ================== CONFIGURATION ==================
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-key-change-me')
 
+# Database (Supabase PostgreSQL)
 database_url = os.environ.get('DATABASE_URL')
 if database_url and database_url.startswith('postgres://'):
     database_url = database_url.replace('postgres://', 'postgresql://', 1)
-
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Cloudinary
 cloudinary.config(
-    cloud_name=os.environ.get("CLOUDINARY_CLOUD_NAME"),
-    api_key=os.environ.get("CLOUDINARY_API_KEY"),
-    api_secret=os.environ.get("CLOUDINARY_API_SECRET"),
+    cloud_name=os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    api_key=os.environ.get('CLOUDINARY_API_KEY'),
+    api_secret=os.environ.get('CLOUDINARY_API_SECRET'),
     secure=True
 )
 
-# Mail
+# Email
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
@@ -48,24 +49,41 @@ db.init_app(app)
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+login_manager.login_message = 'Please log in to access this page.'
 
 serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
-# ================== DATABASE INIT ==================
+# ================== MARKDOWN FILTER ==================
+@app.template_filter('markdown')
+def render_markdown(text):
+    if not text:
+        return ''
+    return markdown.markdown(text, extensions=[
+        FencedCodeExtension(),
+        CodeHiliteExtension(linenums=False),
+        'tables',
+        'nl2br'
+    ])
+
+# ================== DATABASE INIT (ONCE) ==================
+_first_request_done = False
 
 @app.before_request
-def initialize_database():
-    db.create_all()
-
-    if not User.query.filter_by(role="admin").first():
-        admin = User(
-            username="admin",
-            email="admin@yourdomain.com",
-            password_hash=generate_password_hash("Admin@12345"),
-            role="admin"
-        )
-        db.session.add(admin)
-        db.session.commit()
+def before_first_request():
+    global _first_request_done
+    if not _first_request_done:
+        db.create_all()
+        # Create admin user if not exists
+        if not User.query.filter_by(role='admin').first():
+            admin = User(
+                username='admin',
+                email='admin@localhost',
+                password_hash=generate_password_hash('admin'),  # change after first login
+                role='admin'
+            )
+            db.session.add(admin)
+            db.session.commit()
+        _first_request_done = True
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -76,13 +94,12 @@ def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not current_user.is_authenticated or not current_user.is_admin():
-            flash('Admin access required.', 'danger')
+            flash('You need admin privileges to access this page.', 'danger')
             return redirect(url_for('home'))
         return f(*args, **kwargs)
     return decorated_function
 
 # ================== PUBLIC ROUTES ==================
-
 @app.route('/')
 def home():
     tool_count = Tool.query.count()
@@ -95,19 +112,37 @@ def home():
 
 @app.route('/tools')
 def tools():
-    tools = Tool.query.order_by(Tool.id.desc()).all()
-    return render_template('tools.html', tools=tools)
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+    pagination = Tool.query.order_by(Tool.date_posted.desc()).paginate(page=page, per_page=per_page, error_out=False)
+    tools = pagination.items
+    categories = db.session.query(Tool.category).distinct().all()
+    categories = [c[0] for c in categories if c[0]]
+    return render_template('tools.html', tools=tools, pagination=pagination, categories=categories)
 
 @app.route('/gallery')
 def gallery():
-    files = GalleryFile.query.order_by(GalleryFile.id.desc()).all()
-    return render_template('gallery.html', files=files)
+    page = request.args.get('page', 1, type=int)
+    per_page = 12
+    images_pagination = GalleryFile.query.filter_by(file_type='image').order_by(GalleryFile.upload_date.desc()).paginate(page=page, per_page=per_page, error_out=False)
+    videos_pagination = GalleryFile.query.filter_by(file_type='video').order_by(GalleryFile.upload_date.desc()).paginate(page=page, per_page=per_page, error_out=False)
+    code_pagination = GalleryFile.query.filter_by(file_type='code').order_by(GalleryFile.upload_date.desc()).paginate(page=page, per_page=per_page, error_out=False)
+    
+    return render_template('gallery.html',
+                           images=images_pagination.items,
+                           videos=videos_pagination.items,
+                           code_files=code_pagination.items,
+                           images_pagination=images_pagination,
+                           videos_pagination=videos_pagination,
+                           code_pagination=code_pagination)
 
 @app.route('/blog')
 def blog():
-    posts = BlogPost.query.filter_by(published=True)\
-        .order_by(BlogPost.id.desc()).all()
-    return render_template('blog.html', posts=posts)
+    page = request.args.get('page', 1, type=int)
+    per_page = 5
+    pagination = BlogPost.query.filter_by(published=True).order_by(BlogPost.date_posted.desc()).paginate(page=page, per_page=per_page, error_out=False)
+    posts = pagination.items
+    return render_template('blog.html', posts=posts, pagination=pagination)
 
 @app.route('/blog/<slug>')
 def blog_post(slug):
@@ -118,42 +153,53 @@ def blog_post(slug):
 def contact():
     form = ContactForm()
     if form.validate_on_submit():
-        flash("Message sent successfully!", "success")
+        msg = Message(subject=form.subject.data,
+                      recipients=['myprogrammwork1@gmail.com'],
+                      body=f"From: {form.name.data} <{form.email.data}>\n\n{form.message.data}")
+        try:
+            mail.send(msg)
+            flash('Thank you for contacting us. We will get back to you soon!', 'success')
+        except Exception as e:
+            flash('Error sending message. Please try again later.', 'danger')
         return redirect(url_for('contact'))
     return render_template('contact.html', form=form)
 
-# ================== AUTH ==================
-
+# ================== AUTHENTICATION ==================
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
     form = RegistrationForm()
     if form.validate_on_submit():
         hashed = generate_password_hash(form.password.data)
-        user = User(username=form.username.data,
-                    email=form.email.data,
-                    password_hash=hashed,
-                    role="user")
+        user = User(username=form.username.data, email=form.email.data, password_hash=hashed, role='user')
         db.session.add(user)
         db.session.commit()
-        flash('Registration successful!', 'success')
+        flash('Registration successful! You can now log in.', 'success')
         return redirect(url_for('login'))
     return render_template('register.html', form=form)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user and check_password_hash(user.password_hash, form.password.data):
             login_user(user)
-            return redirect(url_for('home'))
-        flash('Invalid credentials.', 'danger')
+            next_page = request.args.get('next')
+            flash('Logged in successfully.', 'success')
+            return redirect(next_page) if next_page else redirect(url_for('home'))
+        else:
+            flash('Invalid username or password.', 'danger')
     return render_template('login.html', form=form)
 
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
+    flash('You have been logged out.', 'info')
     return redirect(url_for('home'))
 
 @app.route('/change-password', methods=['GET', 'POST'])
@@ -161,36 +207,133 @@ def logout():
 def change_password():
     form = ChangePasswordForm()
     if form.validate_on_submit():
-        if check_password_hash(current_user.password_hash, form.current_password.data):
+        if check_password_hash(current_user.password_hash, form.old_password.data):
             current_user.password_hash = generate_password_hash(form.new_password.data)
             db.session.commit()
-            flash("Password updated successfully.", "success")
+            flash('Your password has been updated.', 'success')
             return redirect(url_for('home'))
         else:
-            flash("Current password incorrect.", "danger")
+            flash('Old password is incorrect.', 'danger')
     return render_template('change_password.html', form=form)
 
-# ================== ADMIN ==================
+# ================== PASSWORD RESET ==================
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    form = ForgotPasswordForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            token = serializer.dumps(user.email, salt='password-reset-salt')
+            reset_url = url_for('reset_password', token=token, _external=True)
+            msg = Message('Password Reset Request',
+                          recipients=[user.email],
+                          body=f'Click the link to reset your password: {reset_url}\n\nIf you did not request this, ignore this email.')
+            try:
+                mail.send(msg)
+                flash('A password reset link has been sent to your email.', 'info')
+            except Exception as e:
+                flash('Error sending email. Please try again later.', 'danger')
+        else:
+            flash('If that email is registered, a reset link will be sent.', 'info')
+        return redirect(url_for('login'))
+    return render_template('forgot_password.html', form=form)
 
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    try:
+        email = serializer.loads(token, salt='password-reset-salt', max_age=3600)  # 1 hour
+    except SignatureExpired:
+        flash('The reset link has expired. Please request a new one.', 'danger')
+        return redirect(url_for('forgot_password'))
+    except BadSignature:
+        flash('Invalid reset link.', 'danger')
+        return redirect(url_for('forgot_password'))
+
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=email).first()
+        if user:
+            user.password_hash = generate_password_hash(form.password.data)
+            db.session.commit()
+            flash('Your password has been reset. You can now log in.', 'success')
+            return redirect(url_for('login'))
+        else:
+            flash('User not found.', 'danger')
+            return redirect(url_for('forgot_password'))
+    return render_template('reset_password.html', form=form, token=token)
+
+# ================== ADMIN DASHBOARD ==================
 @app.route('/admin')
 @login_required
 @admin_required
 def admin_dashboard():
-    return render_template('admin/dashboard.html')
+    tools = Tool.query.order_by(Tool.date_posted.desc()).limit(5).all()
+    posts = BlogPost.query.order_by(BlogPost.date_posted.desc()).limit(5).all()
+    files = GalleryFile.query.order_by(GalleryFile.upload_date.desc()).limit(5).all()
+    return render_template('admin/dashboard.html', tools=tools, posts=posts, files=files)
+
+# ================== TOOL ADMIN ==================
+@app.route('/admin/tool/add', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def add_tool():
+    form = ToolForm()
+    if form.validate_on_submit():
+        category = form.category.data
+        if category == 'Other' and request.form.get('custom_category'):
+            category = request.form.get('custom_category')
+        tool = Tool(
+            title=form.title.data,
+            description=form.description.data,
+            category=category,
+            language=form.language.data,
+            code=form.code.data,
+            github_url=form.github_url.data
+        )
+        db.session.add(tool)
+        db.session.commit()
+        flash('Tool added successfully', 'success')
+        return redirect(url_for('admin_dashboard'))
+    return render_template('admin/add_tool.html', form=form)
+
+@app.route('/admin/tool/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit_tool(id):
+    tool = Tool.query.get_or_404(id)
+    form = ToolForm(obj=tool)
+    if form.validate_on_submit():
+        category = form.category.data
+        if category == 'Other' and request.form.get('custom_category'):
+            category = request.form.get('custom_category')
+        tool.category = category
+        form.populate_obj(tool)
+        db.session.commit()
+        flash('Tool updated', 'success')
+        return redirect(url_for('admin_dashboard'))
+    return render_template('admin/edit_tool.html', form=form, tool=tool)
+
+@app.route('/admin/tool/delete/<int:id>')
+@login_required
+@admin_required
+def delete_tool(id):
+    tool = Tool.query.get_or_404(id)
+    db.session.delete(tool)
+    db.session.commit()
+    flash('Tool deleted', 'success')
+    return redirect(url_for('admin_dashboard'))
 
 # ================== BLOG ADMIN ==================
-
 @app.route('/admin/blog/add', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def add_blog():
     form = BlogForm()
     if form.validate_on_submit():
-
         featured_image = None
         if form.featured_image.data:
             upload_result = cloudinary.uploader.upload(form.featured_image.data)
-            featured_image = upload_result["secure_url"]
+            featured_image = upload_result['secure_url']
 
         post = BlogPost(
             title=form.title.data,
@@ -201,43 +344,89 @@ def add_blog():
             tags=form.tags.data,
             published=form.published.data
         )
-
         db.session.add(post)
         db.session.commit()
-
-        flash('Blog post added.', 'success')
+        flash('Blog post added', 'success')
         return redirect(url_for('admin_dashboard'))
-
     return render_template('admin/add_blog.html', form=form)
 
-# ================== GALLERY ADMIN ==================
+@app.route('/admin/blog/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit_blog(id):
+    post = BlogPost.query.get_or_404(id)
+    form = BlogForm(obj=post)
+    if form.validate_on_submit():
+        if form.featured_image.data:
+            # Delete old image from Cloudinary? Optional, we can just overwrite
+            upload_result = cloudinary.uploader.upload(form.featured_image.data)
+            post.featured_image = upload_result['secure_url']
+        form.populate_obj(post)
+        db.session.commit()
+        flash('Blog post updated', 'success')
+        return redirect(url_for('admin_dashboard'))
+    return render_template('admin/edit_blog.html', form=form, post=post)
 
+@app.route('/admin/blog/delete/<int:id>')
+@login_required
+@admin_required
+def delete_blog(id):
+    post = BlogPost.query.get_or_404(id)
+    # Optionally delete image from Cloudinary
+    db.session.delete(post)
+    db.session.commit()
+    flash('Blog post deleted', 'success')
+    return redirect(url_for('admin_dashboard'))
+
+# ================== GALLERY ADMIN ==================
 @app.route('/admin/upload', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def upload_file():
     form = UploadFileForm()
     if form.validate_on_submit():
-
         upload_result = cloudinary.uploader.upload(form.file.data)
-
         file_record = GalleryFile(
             filename=form.file.data.filename,
-            stored_filename=upload_result["secure_url"],
+            stored_filename=upload_result['secure_url'],
             file_type=form.file_type.data,
             description=form.description.data,
-            size=upload_result.get("bytes", 0)
+            size=upload_result.get('bytes', 0)
         )
-
         db.session.add(file_record)
         db.session.commit()
-
-        flash('File uploaded successfully.', 'success')
-        return redirect(url_for('admin_dashboard'))
-
+        return jsonify({'message': 'File uploaded successfully'}), 200
     return render_template('admin/upload_file.html', form=form)
 
-# ================== RUN ==================
+@app.route('/admin/file/delete/<int:id>')
+@login_required
+@admin_required
+def delete_file(id):
+    file_record = GalleryFile.query.get_or_404(id)
+    # Optionally delete from Cloudinary
+    db.session.delete(file_record)
+    db.session.commit()
+    flash('File deleted', 'success')
+    return redirect(url_for('admin_dashboard'))
 
+# ================== INLINE IMAGE UPLOAD FOR BLOG ==================
+@app.route('/admin/upload-inline-image', methods=['POST'])
+@login_required
+@admin_required
+def upload_inline_image():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+    # Allow only images
+    if not file.filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp')):
+        return jsonify({'error': 'File type not allowed'}), 400
+
+    upload_result = cloudinary.uploader.upload(file)
+    image_url = upload_result['secure_url']
+    return jsonify({'location': image_url})
+
+# ================== RUN ==================
 if __name__ == '__main__':
     app.run(debug=True)

@@ -14,7 +14,7 @@
     </div>
     
     {% if post.featured_image %}
-        <img src="{{ url_for('blog_image', filename=post.featured_image) }}" alt="{{ post.title }}" class="featured-image">
+        <img src="{{ post.featured_image }}" alt="{{ post.title }}" class="featured-image">
     {% endif %}
     
     <div class="post-content markdown-body">
