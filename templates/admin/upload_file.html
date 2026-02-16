@@ -12,11 +12,11 @@
         </div>
         <div class="form-group">
             {{ form.description.label }}
-            {{ form.description(rows=3, class="form-control", placeholder="Brief description") }}
+            {{ form.description(class="form-control", rows=3, placeholder="Brief description") }}
         </div>
         <div class="form-group">
             {{ form.file.label }}
-            {{ form.file(class="form-control") }}
+            {{ form.file(class="form-control-file") }}
             <small>Supported: Images, Videos, Code files, Documents (all file types allowed)</small>
         </div>
         <button type="submit" class="btn primary">Upload File</button>

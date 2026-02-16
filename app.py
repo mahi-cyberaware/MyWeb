@@ -90,7 +90,7 @@ def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not current_user.is_authenticated or not current_user.is_admin():
-            flash('You need admin privileges to access this page.')
+            flash('You need admin privileges to access this page.', 'danger')
             return redirect(url_for('home'))
         return f(*args, **kwargs)
     return decorated_function
@@ -164,7 +164,7 @@ def contact():
                       body=f"From: {form.name.data} <{form.email.data}>\n\n{form.message.data}")
         try:
             mail.send(msg)
-            flash('Your message has been sent. Thank you!', 'success')
+            flash('Thank you for contacting us. We will get back to you soon!', 'success')
         except Exception as e:
             flash('Error sending message. Please try again later.', 'danger')
         return redirect(url_for('contact'))
@@ -298,10 +298,13 @@ def admin_dashboard():
 def add_tool():
     form = ToolForm()
     if form.validate_on_submit():
+        category = form.category.data
+        if category == 'Other' and request.form.get('custom_category'):
+            category = request.form.get('custom_category')
         tool = Tool(
             title=form.title.data,
             description=form.description.data,
-            category=form.category.data,
+            category=category,
             language=form.language.data,
             code=form.code.data,
             github_url=form.github_url.data
@@ -319,6 +322,10 @@ def edit_tool(id):
     tool = Tool.query.get_or_404(id)
     form = ToolForm(obj=tool)
     if form.validate_on_submit():
+        category = form.category.data
+        if category == 'Other' and request.form.get('custom_category'):
+            category = request.form.get('custom_category')
+        tool.category = category
         form.populate_obj(tool)
         db.session.commit()
         flash('Tool updated', 'success')
@@ -452,8 +459,7 @@ def upload_file():
         )
         db.session.add(file_record)
         db.session.commit()
-        flash('File uploaded successfully', 'success')
-        return redirect(url_for('admin_dashboard'))
+        return jsonify({'message': 'File uploaded successfully'}), 200
     return render_template('admin/upload_file.html', form=form)
 
 @app.route('/admin/file/delete/<int:id>')
@@ -468,14 +474,6 @@ def delete_file(id):
     db.session.commit()
     flash('File deleted', 'success')
     return redirect(url_for('admin_dashboard'))
-
-# Route for upload progress (dummy, progress handled client-side)
-@app.route('/upload-progress', methods=['POST'])
-@login_required
-@admin_required
-def upload_progress():
-    # This is just a placeholder; actual upload handled elsewhere
-    return jsonify({'status': 'ok'})
 
 if __name__ == '__main__':
     app.run(debug=True)

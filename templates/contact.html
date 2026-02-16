@@ -1,26 +1,28 @@
 {% extends "base.html" %}
 {% block title %}Contact{% endblock %}
 {% block content %}
-<h1>Contact Me</h1>
+<h1 class="center">Contact Me</h1>
 
-<form method="POST">
-    {{ form.hidden_tag() }}
-    <div>
-        {{ form.name.label }}<br>
-        {{ form.name(size=40) }}
-    </div>
-    <div>
-        {{ form.email.label }}<br>
-        {{ form.email(size=40) }}
-    </div>
-    <div>
-        {{ form.subject.label }}<br>
-        {{ form.subject(size=40) }}
-    </div>
-    <div>
-        {{ form.message.label }}<br>
-        {{ form.message(rows=5, cols=40) }}
-    </div>
-    <button type="submit">Send Message</button>
-</form>
+<div class="form-container">
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.name.label }}
+            {{ form.name(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.email.label }}
+            {{ form.email(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.subject.label }}
+            {{ form.subject(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.message.label }}
+            {{ form.message(class="form-control", rows=6) }}
+        </div>
+        <button type="submit" class="btn primary">Send Message</button>
+    </form>
+</div>
 {% endblock %}

@@ -1,48 +1,49 @@
 {% extends "base.html" %}
 {% block title %}Add Blog Post{% endblock %}
 {% block content %}
-<h1>Add Blog Post</h1>
+<h1 class="center">Add Blog Post</h1>
 
-<form method="POST" enctype="multipart/form-data">
-    {{ form.hidden_tag() }}
-    <div>
-        {{ form.title.label }}<br>
-        {{ form.title(size=50) }}
-    </div>
-    <div>
-        {{ form.slug.label }}<br>
-        {{ form.slug(size=50) }}<br>
-        <small>URL-friendly version of the title (e.g., my-blog-post)</small>
-    </div>
-    <div>
-        {{ form.excerpt.label }}<br>
-        {{ form.excerpt(rows=3, cols=50) }}
-    </div>
-    <div>
-        {{ form.content.label }}<br>
-        {{ form.content(rows=15, cols=50, id="content") }}
-        <button type="button" id="upload-image-btn" class="btn-secondary">Upload Image</button>
-        <input type="file" id="image-upload" accept="image/*" style="display:none;">
-        <small>You can use Markdown syntax. Code blocks with triple backticks will be highlighted.</small>
-    </div>
-    <div>
-        {{ form.featured_image.label }}<br>
-        {{ form.featured_image() }}<br>
-        <small>Optional: Featured image for the blog card.</small>
-    </div>
-    <div>
-        {{ form.tags.label }}<br>
-        {{ form.tags(size=50) }}<br>
-        <small>Comma-separated tags</small>
-    </div>
-    <div>
-        {{ form.published() }} {{ form.published.label }}
-    </div>
-    <button type="submit">Add Blog Post</button>
-</form>
+<div class="form-container">
+    <form method="POST" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.title.label }}
+            {{ form.title(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.slug.label }}
+            {{ form.slug(class="form-control") }}
+            <small>URL-friendly version (e.g., my-blog-post)</small>
+        </div>
+        <div class="form-group">
+            {{ form.excerpt.label }}
+            {{ form.excerpt(class="form-control", rows=4) }}
+        </div>
+        <div class="form-group">
+            {{ form.content.label }}
+            {{ form.content(class="form-control", id="content", rows=15) }}
+            <button type="button" id="upload-image-btn" class="btn secondary">Upload Image</button>
+            <input type="file" id="image-upload" accept="image/*" style="display:none;">
+            <small>Markdown supported. Code blocks with triple backticks will be highlighted.</small>
+        </div>
+        <div class="form-group">
+            {{ form.featured_image.label }}
+            {{ form.featured_image(class="form-control-file") }}
+            <small>Optional: Featured image for blog card.</small>
+        </div>
+        <div class="form-group">
+            {{ form.tags.label }}
+            {{ form.tags(class="form-control") }}
+            <small>Comma-separated tags</small>
+        </div>
+        <div class="form-group">
+            {{ form.published() }} {{ form.published.label }}
+        </div>
+        <button type="submit" class="btn primary">Add Blog Post</button>
+    </form>
+</div>
 
 <script>
-// Inline image upload
 document.getElementById('upload-image-btn').addEventListener('click', function() {
     document.getElementById('image-upload').click();
 });
@@ -63,7 +64,6 @@ document.getElementById('image-upload').addEventListener('change', function(e) {
         if (data.location) {
             const textarea = document.getElementById('content');
             const markdownImage = `![${file.name}](${data.location})`;
-            // Insert at cursor position
             const start = textarea.selectionStart;
             const end = textarea.selectionEnd;
             textarea.value = textarea.value.substring(0, start) + markdownImage + textarea.value.substring(end);

@@ -22,12 +22,20 @@
             padding: 2rem;
             margin: 2rem auto;
         }
+        :root {
+            --bg-primary-rgb: 248, 250, 252;
+        }
+        [data-theme="dark"] {
+            --bg-primary-rgb: 15, 23, 42;
+        }
     </style>
 </head>
 <body>
     <header>
         <div class="logo">
-            <img src="{{ url_for('static', filename='assets/logo.png') }}" alt="Mahi CyberAware" height="60"> <!-- increased size -->
+            <a href="{{ url_for('home') }}">
+                <img src="{{ url_for('static', filename='assets/logo.png') }}" alt="Mahi CyberAware" height="60">
+            </a>
         </div>
         <nav>
             <a href="{{ url_for('home') }}">Home</a>
@@ -68,13 +76,13 @@
             <p>Cybersecurity & Penetration Testing</p>
             <div class="social-links">
                 <a href="https://github.com/mahi-cyberaware" target="_blank">
-                    <img src="{{ url_for('static', filename='assets/github.png') }}" alt="GitHub" width="32" height="32">
+                    <img src="{{ url_for('static', filename='assets/github.png') }}" alt="GitHub">
                 </a>
                 <a href="#" target="_blank">
-                    <img src="{{ url_for('static', filename='assets/telegram.png') }}" alt="Telegram" width="32" height="32">
+                    <img src="{{ url_for('static', filename='assets/telegram.png') }}" alt="Telegram">
                 </a>
                 <a href="#" target="_blank">
-                    <img src="{{ url_for('static', filename='assets/twitter.png') }}" alt="Twitter" width="32" height="32">
+                    <img src="{{ url_for('static', filename='assets/twitter.png') }}" alt="Twitter">
                 </a>
             </div>
         </div>
