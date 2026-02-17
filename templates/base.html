@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,8 +7,10 @@
     <link rel="icon" href="{{ url_for('static', filename='assets/logo.png') }}" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         body {
+            background-color: #0b0f14;
             background-image: url("{{ url_for('static', filename='assets/sitebg.png') }}");
             background-size: cover;
             background-attachment: fixed;
@@ -16,17 +18,11 @@
             background-repeat: no-repeat;
         }
         main {
-            background-color: rgba(var(--bg-primary-rgb), 0.85);
+            background-color: rgba(10, 15, 20, 0.85);
             backdrop-filter: blur(10px);
             border-radius: 1rem;
             padding: 2rem;
             margin: 2rem auto;
-        }
-        :root {
-            --bg-primary-rgb: 248, 250, 252;
-        }
-        [data-theme="dark"] {
-            --bg-primary-rgb: 15, 23, 42;
         }
     </style>
 </head>
@@ -39,7 +35,6 @@
         </div>
         <nav>
             <a href="{{ url_for('home') }}">Home</a>
-            <a href="{{ url_for('home') }}#about">About</a>
             <a href="{{ url_for('tools') }}">Tools</a>
             <a href="{{ url_for('gallery') }}">Gallery</a>
             <a href="{{ url_for('blog') }}">Blog</a>
@@ -75,57 +70,54 @@
     <footer class="site-footer">
         <div class="footer-columns">
             <div class="footer-col">
-                <h4>ABOUT US</h4>
+                <h4>COMPANY</h4>
                 <ul>
-                    <li><a href="#">Press Release</a></li>
-                    <li><a href="#">Sponsorship-Advertising</a></li>
-                    <li><a href="#">Site Map</a></li>
-                    <li><a href="#">Terms of Services</a></li>
-                    <li><a href="#">Privacy & Policy</a></li>
+                    <li><a href="{{ url_for('home') }}#about">About</a></li>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms</a></li>
                 </ul>
             </div>
             <div class="footer-col">
-                <h4>SOLUTIONS</h4>
+                <h4>SERVICES</h4>
                 <ul>
-                    <li><a href="#">Vulnerability Assessment</a></li>
-                    <li><a href="#">Penetration Testing</a></li>
-                    <li><a href="#">Digital Forensics</a></li>
-                    <li><a href="#">Social Engineering</a></li>
-                    <li><a href="#">Compliance Programs</a></li>
+                    <li><a href="{{ url_for('tools') }}?category=Penetration%20Testing">Penetration Testing Tools</a></li>
+                    <li><a href="{{ url_for('tools') }}?category=Ethical%20Hacking">Ethical Hacking Tools</a></li>
+                    <li><a href="{{ url_for('tools') }}?category=Digital%20Forensics">Digital Forensics Tools</a></li>
+                    <li><a href="{{ url_for('tools') }}?category=Security%20Testing">Security Testing Tools</a></li>
                 </ul>
             </div>
             <div class="footer-col">
                 <h4>SUPPORT</h4>
                 <ul>
-                    <li><a href="#">Submit a Ticket</a></li>
-                    <li><a href="#">Report an Incident</a></li>
-                    <li><a href="#">Vulnerability Disclosure Policy</a></li>
-                    <li><a href="#">Contact us</a></li>
+                    <li><a href="{{ url_for('contact') }}">Contact Form</a></li>
+                    <li><a href="#">Report Vulnerability</a></li>
+                    <li><a href="{{ url_for('contact') }}">Help Center</a></li>
+                    <li><a href="mailto:myprogrammwork1@gmail.com">myprogrammwork1@gmail.com</a></li>
                 </ul>
             </div>
             <div class="footer-col">
-                <h4>EDUCATION</h4>
+                <h4>RESOURCES</h4>
                 <ul>
-                    <li><a href="#">Courses - Login</a></li>
-                    <li><a href="#">Premium Articles - Login</a></li>
-                    <li><a href="#">Patreon - Hacking Episodes</a></li>
-                    <li><a href="#">Offensive Security Courses</a></li>
-                    <li><a href="#">Security Awareness</a></li>
+                    <li><a href="{{ url_for('blog') }}">Blogs</a></li>
+                    <li><a href="#">Case Studies</a></li>
+                    <li><a href="#">Whitepapers</a></li>
+                    <li><a href="https://github.com/mahi-cyberaware" target="_blank">GitHub</a></li>
+                    <li><a href="#">GitLab</a></li>
+                    <li><a href="#">News channels</a></li>
                 </ul>
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2026 Mahi CyberAware. All rights reserved. | Cybersecurity & Penetration Testing</p>
+            <p>&copy; 2026 Mahi CyberAware. All rights reserved.</p>
             <div class="social-links">
-                <a href="https://github.com/mahi-cyberaware" target="_blank">
-                    <img src="{{ url_for('static', filename='assets/github.png') }}" alt="GitHub">
-                </a>
-                <a href="#" target="_blank">
-                    <img src="{{ url_for('static', filename='assets/telegram.png') }}" alt="Telegram">
-                </a>
-                <a href="#" target="_blank">
-                    <img src="{{ url_for('static', filename='assets/twitter.png') }}" alt="Twitter">
-                </a>
+                <a href="#"><img src="{{ url_for('static', filename='assets/linkedin.png') }}" alt="LinkedIn"></a>
+                <a href="#"><img src="{{ url_for('static', filename='assets/x.png') }}" alt="X"></a>
+                <a href="https://github.com/mahi-cyberaware" target="_blank"><img src="{{ url_for('static', filename='assets/github.png') }}" alt="GitHub"></a>
+                <a href="#"><img src="{{ url_for('static', filename='assets/youtube.png') }}" alt="YouTube"></a>
+                <a href="#"><img src="{{ url_for('static', filename='assets/facebook.png') }}" alt="Facebook"></a>
+                <a href="#"><img src="{{ url_for('static', filename='assets/instagram.png') }}" alt="Instagram"></a>
+                <a href="#"><img src="{{ url_for('static', filename='assets/discord.png') }}" alt="Discord"></a>
             </div>
         </div>
     </footer>

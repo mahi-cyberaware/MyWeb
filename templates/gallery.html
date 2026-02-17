@@ -1,17 +1,27 @@
 {% extends "base.html" %}
 {% block title %}Media Gallery{% endblock %}
 {% block content %}
+
+<!-- Hero for Gallery -->
+<section class="page-hero" style="background-image: url('{{ url_for('static', filename='assets/galleryhero.png') }}');">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <h1>Media Gallery</h1>
+        <p>Browse images, videos, and code files uploaded by our community.</p>
+    </div>
+</section>
+
 <h1 class="center">Media Gallery</h1>
 
 <div class="gallery-tabs centered">
-    <button class="tab {% if active_tab == 'images' or not active_tab %}active{% endif %}" data-tab="images">Images</button>
-    <button class="tab {% if active_tab == 'videos' %}active{% endif %}" data-tab="videos">Videos</button>
-    <button class="tab {% if active_tab == 'code' %}active{% endif %}" data-tab="code">Code Files</button>
+    <button class="tab active" data-tab="images">Images</button>
+    <button class="tab" data-tab="videos">Videos</button>
+    <button class="tab" data-tab="code">Code Files</button>
 </div>
 
 <div class="gallery-content">
     <!-- Images Tab -->
-    <div class="tab-pane {% if active_tab == 'images' or not active_tab %}active{% endif %}" id="images">
+    <div class="tab-pane active" id="images">
         {% if images %}
             <div class="file-grid">
             {% for file in images %}
@@ -32,7 +42,7 @@
     </div>
 
     <!-- Videos Tab -->
-    <div class="tab-pane {% if active_tab == 'videos' %}active{% endif %}" id="videos">
+    <div class="tab-pane" id="videos">
         {% if videos %}
             <div class="file-grid">
             {% for file in videos %}
@@ -56,7 +66,7 @@
     </div>
 
     <!-- Code Files Tab -->
-    <div class="tab-pane {% if active_tab == 'code' %}active{% endif %}" id="code">
+    <div class="tab-pane" id="code">
         {% if code_files %}
             <div class="file-grid">
             {% for file in code_files %}

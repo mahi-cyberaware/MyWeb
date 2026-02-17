@@ -8,11 +8,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
-from models import db, User, Tool, BlogPost, GalleryFile
-from forms import (ToolForm, BlogForm, UploadFileForm,
+from models import db, User, Tool, BlogPost, News, GalleryFile
+from forms import (ToolForm, BlogForm, NewsForm, UploadFileForm,
                    RegistrationForm, LoginForm, ChangePasswordForm,
-                   ForgotPasswordForm, ResetPasswordForm,
-                   ContactFormExtended)  # use extended form
+                   ForgotPasswordForm, ResetPasswordForm, ContactForm)
 from datetime import datetime
 from markdown.extensions.fenced_code import FencedCodeExtension
 from markdown.extensions.codehilite import CodeHiliteExtension
@@ -22,14 +21,12 @@ app = Flask(__name__)
 # ================== CONFIGURATION ==================
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-key-change-me')
 
-# Database (Supabase PostgreSQL)
 database_url = os.environ.get('DATABASE_URL')
 if database_url and database_url.startswith('postgres://'):
     database_url = database_url.replace('postgres://', 'postgresql://', 1)
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Cloudinary
 cloudinary.config(
     cloud_name=os.environ.get('CLOUDINARY_CLOUD_NAME'),
     api_key=os.environ.get('CLOUDINARY_API_KEY'),
@@ -37,7 +34,6 @@ cloudinary.config(
     secure=True
 )
 
-# Email
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
@@ -66,7 +62,7 @@ def render_markdown(text):
         'nl2br'
     ])
 
-# ================== DATABASE INIT (ONCE) ==================
+# ================== DATABASE INIT ==================
 _first_request_done = False
 
 @app.before_request
@@ -74,7 +70,6 @@ def before_first_request():
     global _first_request_done
     if not _first_request_done:
         db.create_all()
-        # Create admin user if not exists
         if not User.query.filter_by(role='admin').first():
             admin = User(
                 username='admin',
@@ -95,7 +90,7 @@ def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not current_user.is_authenticated or not current_user.is_admin():
-            flash('You need admin privileges to access this page.', 'danger')
+            flash('Admin access required.', 'danger')
             return redirect(url_for('home'))
         return f(*args, **kwargs)
     return decorated_function
@@ -107,12 +102,14 @@ def home():
     file_count = GalleryFile.query.count()
     blog_count = BlogPost.query.filter_by(published=True).count()
     latest_posts = BlogPost.query.filter_by(published=True).order_by(BlogPost.date_posted.desc()).limit(3).all()
-    contact_form = ContactFormExtended()
+    latest_news = News.query.order_by(News.date_posted.desc()).limit(3).all()
+    contact_form = ContactForm()
     return render_template('index.html',
                            tool_count=tool_count,
                            file_count=file_count,
                            blog_count=blog_count,
                            latest_posts=latest_posts,
+                           latest_news=latest_news,
                            contact_form=contact_form)
 
 @app.route('/tools')
@@ -156,12 +153,11 @@ def blog_post(slug):
 
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
-    form = ContactFormExtended()
+    form = ContactForm()
     if form.validate_on_submit():
-        # Compose email
-        msg = Message(subject=f"Contact from {form.name.data} - {form.reason.data}",
+        msg = Message(subject=f"Contact from {form.name.data}",
                       recipients=['myprogrammwork1@gmail.com'],
-                      body=f"Name: {form.name.data}\nEmail: {form.email.data}\nReason: {form.reason.data}\nAssets: {form.assets.data}\n\nMessage:\n{form.message.data}")
+                      body=f"Name: {form.name.data}\nEmail: {form.email.data}\n\nMessage:\n{form.message.data}")
         try:
             mail.send(msg)
             flash('Thank you for contacting us. We will get back to you soon!', 'success')
@@ -287,8 +283,9 @@ def reset_password(token):
 def admin_dashboard():
     tools = Tool.query.order_by(Tool.date_posted.desc()).limit(5).all()
     posts = BlogPost.query.order_by(BlogPost.date_posted.desc()).limit(5).all()
+    news = News.query.order_by(News.date_posted.desc()).limit(5).all()
     files = GalleryFile.query.order_by(GalleryFile.upload_date.desc()).limit(5).all()
-    return render_template('admin/dashboard.html', tools=tools, posts=posts, files=files)
+    return render_template('admin/dashboard.html', tools=tools, posts=posts, news=news, files=files)
 
 # ================== TOOL ADMIN ==================
 @app.route('/admin/tool/add', methods=['GET', 'POST'])
@@ -297,6 +294,10 @@ def admin_dashboard():
 def add_tool():
     form = ToolForm()
     if form.validate_on_submit():
+        image_url = None
+        if form.image.data:
+            upload_result = cloudinary.uploader.upload(form.image.data)
+            image_url = upload_result['secure_url']
         category = form.category.data
         if category == 'Other' and request.form.get('custom_category'):
             category = request.form.get('custom_category')
@@ -306,7 +307,8 @@ def add_tool():
             category=category,
             language=form.language.data,
             code=form.code.data,
-            github_url=form.github_url.data
+            github_url=form.github_url.data,
+            image_url=image_url
         )
         db.session.add(tool)
         db.session.commit()
@@ -321,6 +323,9 @@ def edit_tool(id):
     tool = Tool.query.get_or_404(id)
     form = ToolForm(obj=tool)
     if form.validate_on_submit():
+        if form.image.data:
+            upload_result = cloudinary.uploader.upload(form.image.data)
+            tool.image_url = upload_result['secure_url']
         category = form.category.data
         if category == 'Other' and request.form.get('custom_category'):
             category = request.form.get('custom_category')
@@ -352,7 +357,6 @@ def add_blog():
         if form.featured_image.data:
             upload_result = cloudinary.uploader.upload(form.featured_image.data)
             featured_image = upload_result['secure_url']
-
         post = BlogPost(
             title=form.title.data,
             slug=form.slug.data,
@@ -392,6 +396,55 @@ def delete_blog(id):
     db.session.delete(post)
     db.session.commit()
     flash('Blog post deleted', 'success')
+    return redirect(url_for('admin_dashboard'))
+
+# ================== NEWS ADMIN ==================
+@app.route('/admin/news/add', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def add_news():
+    form = NewsForm()
+    if form.validate_on_submit():
+        image_url = None
+        if form.image.data:
+            upload_result = cloudinary.uploader.upload(form.image.data)
+            image_url = upload_result['secure_url']
+        news = News(
+            title=form.title.data,
+            excerpt=form.excerpt.data,
+            content=form.content.data,
+            image_url=image_url
+        )
+        db.session.add(news)
+        db.session.commit()
+        flash('News added successfully', 'success')
+        return redirect(url_for('admin_dashboard'))
+    return render_template('admin/add_news.html', form=form)
+
+@app.route('/admin/news/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit_news(id):
+    news = News.query.get_or_404(id)
+    form = NewsForm(obj=news)
+    if form.validate_on_submit():
+        if form.image.data:
+            upload_result = cloudinary.uploader.upload(form.image.data)
+            news.image_url = upload_result['secure_url']
+        form.populate_obj(news)
+        db.session.commit()
+        flash('News updated', 'success')
+        return redirect(url_for('admin_dashboard'))
+    return render_template('admin/edit_news.html', form=form, news=news)
+
+@app.route('/admin/news/delete/<int:id>')
+@login_required
+@admin_required
+def delete_news(id):
+    news = News.query.get_or_404(id)
+    db.session.delete(news)
+    db.session.commit()
+    flash('News deleted', 'success')
     return redirect(url_for('admin_dashboard'))
 
 # ================== GALLERY ADMIN ==================

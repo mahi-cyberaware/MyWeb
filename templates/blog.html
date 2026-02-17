@@ -1,20 +1,28 @@
 {% extends "base.html" %}
 {% block title %}Blog{% endblock %}
 {% block content %}
+
+<!-- Hero for Blog -->
+<section class="page-hero" style="background-image: url('{{ url_for('static', filename='assets/bloghero.png') }}');">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <h1>Blog</h1>
+        <p>Insights, tutorials, and news from the cybersecurity world.</p>
+    </div>
+</section>
+
 <h1 class="center">Blog Posts</h1>
 
-<!-- Search Bar -->
 <div class="search-container">
     <input type="text" id="search-input" placeholder="Search blog posts...">
 </div>
 
-<!-- Featured Post (latest or pinned) -->
 {% if posts and posts[0] %}
 <div class="featured-post">
     <h2 class="post-title"><a href="{{ url_for('blog_post', slug=posts[0].slug) }}">{{ posts[0].title }}</a></h2>
     <div class="post-meta">{{ posts[0].date_posted.strftime('%d/%m/%Y') }} | Tags: {{ posts[0].tags }}</div>
     <p class="post-excerpt">{{ posts[0].excerpt or posts[0].content[:200]|striptags }}...</p>
-    <a href="{{ url_for('blog_post', slug=posts[0].slug) }}" class="read-more">Read More</a>
+    <a href="{{ url_for('blog_post', slug=posts[0].slug) }}" class="read-more">Read More →</a>
 </div>
 {% endif %}
 
@@ -35,7 +43,7 @@
                 {% endif %}
             </div>
             <p class="post-excerpt">{{ post.excerpt or post.content[:150]|striptags }}...</p>
-            <a href="{{ url_for('blog_post', slug=post.slug) }}" class="read-more">Read More</a>
+            <a href="{{ url_for('blog_post', slug=post.slug) }}" class="read-more">Read More →</a>
         </div>
     </article>
     {% else %}

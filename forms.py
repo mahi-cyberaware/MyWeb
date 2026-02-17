@@ -16,6 +16,7 @@ class ToolForm(FlaskForm):
     language = StringField('Language', validators=[Optional()])
     code = TextAreaField('Code', validators=[Optional()])
     github_url = URLField('GitHub URL', validators=[Optional(), URL()])
+    image = FileField('Tool Image', validators=[Optional(), FileAllowed(['jpg', 'png', 'jpeg', 'gif'], 'Images only!')])
 
 class BlogForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
@@ -25,6 +26,12 @@ class BlogForm(FlaskForm):
     featured_image = FileField('Featured Image', validators=[Optional(), FileAllowed(['jpg', 'png', 'jpeg', 'gif'], 'Images only!')])
     tags = StringField('Tags (comma separated)', validators=[Optional()])
     published = BooleanField('Publish immediately')
+
+class NewsForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired()])
+    excerpt = TextAreaField('Excerpt', validators=[Optional()])
+    content = TextAreaField('Content', validators=[DataRequired()])
+    image = FileField('News Image', validators=[Optional(), FileAllowed(['jpg', 'png', 'jpeg', 'gif'], 'Images only!')])
 
 class UploadFileForm(FlaskForm):
     description = TextAreaField('Description', validators=[Optional()])
@@ -67,19 +74,10 @@ class ResetPasswordForm(FlaskForm):
     password = PasswordField('New Password', validators=[DataRequired(), Length(min=6)])
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
 
-# Extended contact form with extra fields
-class ContactFormExtended(FlaskForm):
+class ContactForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
     email = EmailField('Email Address', validators=[DataRequired(), Email()])
     message = TextAreaField('Message', validators=[DataRequired()])
-    reason = SelectField('Why are you seeking pentesting?', choices=[
-        ('', 'Select a reason'),
-        ('audit', 'Security Audit'),
-        ('compliance', 'Compliance'),
-        ('development', 'Development'),
-        ('other', 'Other')
-    ], validators=[DataRequired()])
-    assets = StringField('Which assets do you want to test?', validators=[DataRequired()])
     captcha = StringField('15 + 6 = ?', validators=[DataRequired()])
 
     def validate_captcha(self, field):

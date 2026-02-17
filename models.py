@@ -23,6 +23,7 @@ class Tool(db.Model):
     language = db.Column(db.String(100))
     code = db.Column(db.Text)
     github_url = db.Column(db.String(500))
+    image_url = db.Column(db.String(300))  # Cloudinary URL for tool image
     date_posted = db.Column(db.DateTime, default=datetime.utcnow)
 
 class BlogPost(db.Model):
@@ -30,10 +31,18 @@ class BlogPost(db.Model):
     title = db.Column(db.String(200), nullable=False)
     slug = db.Column(db.String(200), unique=True, nullable=False)
     excerpt = db.Column(db.Text)
-    content = db.Column(db.Text, nullable=False)          # Markdown content
-    featured_image = db.Column(db.String(300))            # filename of featured image
+    content = db.Column(db.Text, nullable=False)
+    featured_image = db.Column(db.String(300))  # Cloudinary URL
     tags = db.Column(db.String(300))
     published = db.Column(db.Boolean, default=False)
+    date_posted = db.Column(db.DateTime, default=datetime.utcnow)
+
+class News(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    excerpt = db.Column(db.Text)
+    content = db.Column(db.Text, nullable=False)
+    image_url = db.Column(db.String(300))  # Cloudinary URL
     date_posted = db.Column(db.DateTime, default=datetime.utcnow)
 
 class GalleryFile(db.Model):
@@ -44,10 +53,3 @@ class GalleryFile(db.Model):
     description = db.Column(db.Text)
     upload_date = db.Column(db.DateTime, default=datetime.utcnow)
     size = db.Column(db.Integer)
-
-# New model for blog images (optional but recommended)
-class BlogImage(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    filename = db.Column(db.String(300), nullable=False)
-    stored_filename = db.Column(db.String(300), unique=True, nullable=False)
-    upload_date = db.Column(db.DateTime, default=datetime.utcnow)

@@ -2,95 +2,125 @@
 {% block title %}Home{% endblock %}
 {% block content %}
 
-<!-- Section 1: Hero -->
-<section class="hero-section">
+<!-- Section 1: Hero with background image -->
+<section class="hero-section" style="background-image: url('{{ url_for('static', filename='assets/homehero.png') }}');">
+    <div class="hero-overlay"></div>
     <div class="hero-content">
-        <h1>INFORMATION SECURITY SOLUTIONS</h1>
-        <p class="hero-subtitle">Transforming security visions through manual testing.</p>
-        <p class="hero-description">
-            Unlock a new level of insight into your system's security with a manual Penetration Test from our Red Team.
-            Mahi CyberAware uses offensive security techniques to give you a thorough assessment.
-        </p>
-        <a href="#" class="btn primary">LEARN MORE</a>
-    </div>
-    <div class="hero-services">
-        <ul>
-            <li>Offensive Security</li>
-            <li>Vulnerability Assessment</li>
-            <li>Pentesting</li>
-            <li>Digital Forensics</li>
-            <li>Phishing Attack Simulation</li>
-        </ul>
+        <h1 class="glitch" data-text="Mahi Cyberaware">Mahi Cyberaware</h1>
+        <p class="hero-tagline">Strengthening Digital Security Through Ethical Innovation</p>
+        <p class="hero-description">We provide cutting-edge cybersecurity tools, research, and training to help you stay ahead of threats. Join our community of ethical hackers and security professionals.</p>
+        <div class="hero-buttons">
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('tools') }}" class="btn primary">Explore Tools</a>
+                <a href="{{ url_for('blog') }}" class="btn secondary">Read Blog</a>
+            {% else %}
+                <a href="{{ url_for('register') }}" class="btn primary">Get Started</a>
+                <a href="{{ url_for('login') }}" class="btn secondary">Login</a>
+            {% endif %}
+        </div>
     </div>
 </section>
 
-<!-- Section 2: Two-column offerings -->
-<section class="offerings-section">
-    <div class="offering-card">
-        <h2>Offensive Security Courses</h2>
-        <p>Acquiring the knowledge to become a true Hacker requires more learning than what you would get from a course. Having said that, our courses are produced to give you a seamless experience and will show you how to engage in critical thinking by overcoming unforeseen obstacles while learning from a Red Team point of view.</p>
-        <a href="#" class="btn primary">Learn More</a>
+<!-- Stats Section -->
+<div class="stats-container">
+    <div class="stat-item">
+        <span class="stat-number">{{ tool_count }}</span>
+        <span class="stat-label">Security Tools</span>
     </div>
-    <div class="offering-card">
-        <h2>Join the Offensive Security Front-Line</h2>
-        <p>Gain access to exclusive, members-only video content by joining our Patreon community. By becoming a Member, you will find exclusive new content available ONLY on Patreon every month, showing you continuous techniques and methodologies in Offensive Security.</p>
-        <a href="#" class="btn primary">PATREON</a>
+    <div class="stat-item">
+        <span class="stat-number">{{ file_count }}</span>
+        <span class="stat-label">Files</span>
     </div>
-</section>
+    <div class="stat-item">
+        <span class="stat-number">{{ blog_count }}</span>
+        <span class="stat-label">Blog Posts</span>
+    </div>
+</div>
 
-<!-- Section 3: Latest Content -->
-<section class="latest-content">
-    <h2>BROWSE OUR LATEST CONTENT</h2>
-    <div class="content-grid">
-        {% for post in latest_posts %}
-        <div class="content-card">
-            <h3>{{ post.title }}</h3>
-            <p>{{ post.excerpt or post.content[:100] }}...</p>
-            <a href="{{ url_for('blog_post', slug=post.slug) }}" class="read-more">Read More →</a>
+<!-- Section 2: Latest News / Updates -->
+<section class="news-section">
+    <h2 class="section-title">Explore Our Latest Insights</h2>
+    <div class="section-underline"></div>
+    <div class="card-grid">
+        {% for news in latest_news %}
+        <div class="news-card">
+            {% if news.image_url %}
+                <img src="{{ news.image_url }}" alt="{{ news.title }}" class="card-image">
+            {% endif %}
+            <h3>{{ news.title }}</h3>
+            <p>{{ news.excerpt or news.content[:100] }}...</p>
+            <a href="{{ url_for('news_detail', id=news.id) }}" class="btn small">Read More →</a>
         </div>
         {% else %}
-        <p>No recent posts.</p>
+        <p>No news updates yet.</p>
+        {% endfor %}
+    </div>
+
+    <!-- Horizontal service slider -->
+    <div class="service-slider">
+        <div class="service-card">Penetration Testing</div>
+        <div class="service-card">Vulnerability Assessment</div>
+        <div class="service-card">Red Team Operations</div>
+        <div class="service-card">Security Awareness Training</div>
+        <div class="service-card">Digital Forensics</div>
+        <div class="service-card">Android Controls</div>
+        <div class="service-card">Social Media</div>
+        <div class="service-card">Others</div>
+    </div>
+</section>
+
+<!-- Section 3: Latest Blogs / Tools -->
+<section class="blog-tools-section">
+    <h2 class="section-title">Explore Our Latest Insights</h2>
+    <div class="section-underline"></div>
+    <div class="card-grid">
+        {% for post in latest_posts %}
+        <div class="blog-card">
+            {% if post.featured_image %}
+                <img src="{{ post.featured_image }}" alt="{{ post.title }}" class="card-image">
+            {% endif %}
+            <h3>{{ post.title }}</h3>
+            <p>{{ post.excerpt or post.content[:100] }}...</p>
+            <a href="{{ url_for('blog_post', slug=post.slug) }}" class="btn small">Read More →</a>
+        </div>
+        {% else %}
+        <p>No blog posts yet.</p>
         {% endfor %}
     </div>
 </section>
 
-<!-- Section 4: Contact Form (extended) -->
-<section class="home-contact">
-    <h2>Transform the way you approach your traditional pentest.</h2>
-    <div class="contact-grid">
-        <div class="contact-form">
-            <form method="POST" action="{{ url_for('contact') }}">
-                {{ contact_form.hidden_tag() }}
-                <div class="form-group">
-                    {{ contact_form.name.label }}*
-                    {{ contact_form.name(class="form-control") }}
-                </div>
-                <div class="form-group">
-                    {{ contact_form.email.label }}*
-                    {{ contact_form.email(class="form-control") }}
-                </div>
-                <div class="form-group">
-                    {{ contact_form.message.label }}*
-                    {{ contact_form.message(class="form-control", rows=4) }}
-                </div>
-                <div class="form-group">
-                    {{ contact_form.reason.label }}*
-                    {{ contact_form.reason(class="form-control") }}
-                </div>
-                <div class="form-group">
-                    {{ contact_form.assets.label }}*
-                    {{ contact_form.assets(class="form-control") }}
-                </div>
-                <div class="form-group">
-                    {{ contact_form.captcha.label }}*
-                    {{ contact_form.captcha(class="form-control") }}
-                </div>
-                <button type="submit" class="btn primary">Submit</button>
-            </form>
-        </div>
-        <div class="contact-info">
-            <p>Are you looking for a better way to secure your business? Whether you need a product audit, vendor security assessment, or overall security testing, we can help. Our team of experts will work with you to identify your specific security needs and provide tailored recommendations to improve your overall security posture.</p>
-        </div>
+<!-- Section 4: Contact -->
+<section class="contact-section">
+    <div class="contact-left">
+        <h2>Let's Secure Your Digital Infrastructure</h2>
+        <p>Partner with us to identify vulnerabilities, strengthen defenses, and build a resilient security posture. Our experts provide tailored solutions for your organization.</p>
+        <ul class="highlights">
+            <li>🔒 Expert-led penetration testing</li>
+            <li>🔍 Comprehensive vulnerability assessments</li>
+            <li>🛡️ Custom security training</li>
+        </ul>
+    </div>
+    <div class="contact-right">
+        <form method="POST" action="{{ url_for('contact') }}" class="contact-form">
+            {{ contact_form.hidden_tag() }}
+            <div class="form-group">
+                {{ contact_form.name.label }}
+                {{ contact_form.name(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ contact_form.email.label }}
+                {{ contact_form.email(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ contact_form.message.label }}
+                {{ contact_form.message(class="form-control", rows=4) }}
+            </div>
+            <div class="form-group">
+                {{ contact_form.captcha.label }}
+                {{ contact_form.captcha(class="form-control") }}
+            </div>
+            <button type="submit" class="btn primary">Submit</button>
+        </form>
     </div>
 </section>
 
