@@ -15,6 +15,7 @@ from forms import (ToolForm, BlogForm, NewsForm, UploadFileForm,
 from datetime import datetime
 from markdown.extensions.fenced_code import FencedCodeExtension
 from markdown.extensions.codehilite import CodeHiliteExtension
+from sqlalchemy import inspect, text
 
 app = Flask(__name__)
 
@@ -94,6 +95,27 @@ def admin_required(f):
             return redirect(url_for('home'))
         return f(*args, **kwargs)
     return decorated_function
+
+# ================== TEMPORARY MIGRATION ROUTE ==================
+@app.route('/migrate-db')
+def migrate_db():
+    """ONE-TIME route to add missing columns. DELETE AFTER USE!"""
+    try:
+        inspector = inspect(db.engine)
+        # Check if 'image_url' column exists in 'tool' table
+        if 'tool' in inspector.get_table_names():
+            columns = [col['name'] for col in inspector.get_columns('tool')]
+            if 'image_url' not in columns:
+                with db.engine.connect() as conn:
+                    conn.execute(text('ALTER TABLE tool ADD COLUMN image_url VARCHAR(300)'))
+                    conn.commit()
+                return "✅ Added 'image_url' column to 'tool' table.<br>Now delete this route!"
+            else:
+                return "Column already exists."
+        else:
+            return "Table 'tool' not found. Maybe run db.create_all() first?"
+    except Exception as e:
+        return f"Error: {e}"
 
 # ================== PUBLIC ROUTES ==================
 @app.route('/')
