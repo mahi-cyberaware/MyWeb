@@ -1,26 +1,34 @@
 {% extends "base.html" %}
 {% block title %}Contact{% endblock %}
 {% block content %}
-<h1 class="center">Contact Me</h1>
+<h1 class="center">Contact Us</h1>
 
 <div class="form-container">
     <form method="POST">
         {{ form.hidden_tag() }}
         <div class="form-group">
-            {{ form.name.label }}
+            {{ form.name.label }}*
             {{ form.name(class="form-control") }}
         </div>
         <div class="form-group">
-            {{ form.email.label }}
+            {{ form.email.label }}*
             {{ form.email(class="form-control") }}
         </div>
         <div class="form-group">
-            {{ form.subject.label }}
-            {{ form.subject(class="form-control") }}
+            {{ form.message.label }}*
+            {{ form.message(class="form-control", rows=4) }}
         </div>
         <div class="form-group">
-            {{ form.message.label }}
-            {{ form.message(class="form-control", rows=6) }}
+            {{ form.reason.label }}*
+            {{ form.reason(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.assets.label }}*
+            {{ form.assets(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.captcha.label }}*
+            {{ form.captcha(class="form-control") }}
         </div>
         <button type="submit" class="btn primary">Send Message</button>
     </form>

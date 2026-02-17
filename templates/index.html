@@ -1,34 +1,97 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 {% block content %}
-<div class="hero">
-    <h1>Mahi CyberAware</h1>
-    <p class="subtitle">Cybersecurity & Penetration Testing Tools Developer</p>
-    <p class="description">Explore my collection of security tools, code snippets, tutorials, and insights into the world of ethical hacking and cybersecurity.</p>
-    <div class="hero-buttons">
-        <a href="{{ url_for('tools') }}" class="btn primary">View Tools</a>
-        <a href="{{ url_for('blog') }}" class="btn secondary">Read Blog</a>
-    </div>
-</div>
 
-<div class="stats">
-    <a href="{{ url_for('tools') }}" class="stat-link">
-        <div class="stat">
-            <span class="stat-number">{{ tool_count }}</span>
-            <span class="stat-label">Security Tools ⚙</span>
+<!-- Section 1: Hero -->
+<section class="hero-section">
+    <div class="hero-content">
+        <h1>INFORMATION SECURITY SOLUTIONS</h1>
+        <p class="hero-subtitle">Transforming security visions through manual testing.</p>
+        <p class="hero-description">
+            Unlock a new level of insight into your system's security with a manual Penetration Test from our Red Team.
+            Mahi CyberAware uses offensive security techniques to give you a thorough assessment.
+        </p>
+        <a href="#" class="btn primary">LEARN MORE</a>
+    </div>
+    <div class="hero-services">
+        <ul>
+            <li>Offensive Security</li>
+            <li>Vulnerability Assessment</li>
+            <li>Pentesting</li>
+            <li>Digital Forensics</li>
+            <li>Phishing Attack Simulation</li>
+        </ul>
+    </div>
+</section>
+
+<!-- Section 2: Two-column offerings -->
+<section class="offerings-section">
+    <div class="offering-card">
+        <h2>Offensive Security Courses</h2>
+        <p>Acquiring the knowledge to become a true Hacker requires more learning than what you would get from a course. Having said that, our courses are produced to give you a seamless experience and will show you how to engage in critical thinking by overcoming unforeseen obstacles while learning from a Red Team point of view.</p>
+        <a href="#" class="btn primary">Learn More</a>
+    </div>
+    <div class="offering-card">
+        <h2>Join the Offensive Security Front-Line</h2>
+        <p>Gain access to exclusive, members-only video content by joining our Patreon community. By becoming a Member, you will find exclusive new content available ONLY on Patreon every month, showing you continuous techniques and methodologies in Offensive Security.</p>
+        <a href="#" class="btn primary">PATREON</a>
+    </div>
+</section>
+
+<!-- Section 3: Latest Content -->
+<section class="latest-content">
+    <h2>BROWSE OUR LATEST CONTENT</h2>
+    <div class="content-grid">
+        {% for post in latest_posts %}
+        <div class="content-card">
+            <h3>{{ post.title }}</h3>
+            <p>{{ post.excerpt or post.content[:100] }}...</p>
+            <a href="{{ url_for('blog_post', slug=post.slug) }}" class="read-more">Read More →</a>
         </div>
-    </a>
-    <a href="{{ url_for('gallery') }}" class="stat-link">
-        <div class="stat">
-            <span class="stat-number">{{ file_count }}</span>
-            <span class="stat-label">Files 📂</span>
+        {% else %}
+        <p>No recent posts.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Section 4: Contact Form (extended) -->
+<section class="home-contact">
+    <h2>Transform the way you approach your traditional pentest.</h2>
+    <div class="contact-grid">
+        <div class="contact-form">
+            <form method="POST" action="{{ url_for('contact') }}">
+                {{ contact_form.hidden_tag() }}
+                <div class="form-group">
+                    {{ contact_form.name.label }}*
+                    {{ contact_form.name(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    {{ contact_form.email.label }}*
+                    {{ contact_form.email(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    {{ contact_form.message.label }}*
+                    {{ contact_form.message(class="form-control", rows=4) }}
+                </div>
+                <div class="form-group">
+                    {{ contact_form.reason.label }}*
+                    {{ contact_form.reason(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    {{ contact_form.assets.label }}*
+                    {{ contact_form.assets(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    {{ contact_form.captcha.label }}*
+                    {{ contact_form.captcha(class="form-control") }}
+                </div>
+                <button type="submit" class="btn primary">Submit</button>
+            </form>
         </div>
-    </a>
-    <a href="{{ url_for('blog') }}" class="stat-link">
-        <div class="stat">
-            <span class="stat-number">{{ blog_count }}</span>
-            <span class="stat-label">Blog Posts</span>
+        <div class="contact-info">
+            <p>Are you looking for a better way to secure your business? Whether you need a product audit, vendor security assessment, or overall security testing, we can help. Our team of experts will work with you to identify your specific security needs and provide tailored recommendations to improve your overall security posture.</p>
         </div>
-    </a>
-</div>
+    </div>
+</section>
+
 {% endblock %}

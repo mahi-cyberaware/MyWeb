@@ -60,15 +60,28 @@ class ChangePasswordForm(FlaskForm):
     new_password = PasswordField('New Password', validators=[DataRequired(), Length(min=6)])
     confirm_new_password = PasswordField('Confirm New Password', validators=[DataRequired(), EqualTo('new_password')])
 
-class ContactForm(FlaskForm):
-    name = StringField('Name', validators=[DataRequired()])
-    email = EmailField('Your Email', validators=[DataRequired(), Email()])
-    subject = StringField('Subject', validators=[DataRequired()])
-    message = TextAreaField('Message', validators=[DataRequired()])
-
 class ForgotPasswordForm(FlaskForm):
     email = EmailField('Email', validators=[DataRequired(), Email()])
 
 class ResetPasswordForm(FlaskForm):
     password = PasswordField('New Password', validators=[DataRequired(), Length(min=6)])
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
+
+# Extended contact form with extra fields
+class ContactFormExtended(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    email = EmailField('Email Address', validators=[DataRequired(), Email()])
+    message = TextAreaField('Message', validators=[DataRequired()])
+    reason = SelectField('Why are you seeking pentesting?', choices=[
+        ('', 'Select a reason'),
+        ('audit', 'Security Audit'),
+        ('compliance', 'Compliance'),
+        ('development', 'Development'),
+        ('other', 'Other')
+    ], validators=[DataRequired()])
+    assets = StringField('Which assets do you want to test?', validators=[DataRequired()])
+    captcha = StringField('15 + 6 = ?', validators=[DataRequired()])
+
+    def validate_captcha(self, field):
+        if field.data != '21':
+            raise ValidationError('Incorrect answer. Please try again.')

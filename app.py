@@ -10,8 +10,9 @@ from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from models import db, User, Tool, BlogPost, GalleryFile
 from forms import (ToolForm, BlogForm, UploadFileForm,
-                   RegistrationForm, LoginForm, ChangePasswordForm, ContactForm,
-                   ForgotPasswordForm, ResetPasswordForm)
+                   RegistrationForm, LoginForm, ChangePasswordForm,
+                   ForgotPasswordForm, ResetPasswordForm,
+                   ContactFormExtended)  # use extended form
 from datetime import datetime
 from markdown.extensions.fenced_code import FencedCodeExtension
 from markdown.extensions.codehilite import CodeHiliteExtension
@@ -78,7 +79,7 @@ def before_first_request():
             admin = User(
                 username='admin',
                 email='admin@localhost',
-                password_hash=generate_password_hash('admin'),  # change after first login
+                password_hash=generate_password_hash('admin'),
                 role='admin'
             )
             db.session.add(admin)
@@ -105,10 +106,14 @@ def home():
     tool_count = Tool.query.count()
     file_count = GalleryFile.query.count()
     blog_count = BlogPost.query.filter_by(published=True).count()
+    latest_posts = BlogPost.query.filter_by(published=True).order_by(BlogPost.date_posted.desc()).limit(3).all()
+    contact_form = ContactFormExtended()
     return render_template('index.html',
                            tool_count=tool_count,
                            file_count=file_count,
-                           blog_count=blog_count)
+                           blog_count=blog_count,
+                           latest_posts=latest_posts,
+                           contact_form=contact_form)
 
 @app.route('/tools')
 def tools():
@@ -151,11 +156,12 @@ def blog_post(slug):
 
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
-    form = ContactForm()
+    form = ContactFormExtended()
     if form.validate_on_submit():
-        msg = Message(subject=form.subject.data,
+        # Compose email
+        msg = Message(subject=f"Contact from {form.name.data} - {form.reason.data}",
                       recipients=['myprogrammwork1@gmail.com'],
-                      body=f"From: {form.name.data} <{form.email.data}>\n\n{form.message.data}")
+                      body=f"Name: {form.name.data}\nEmail: {form.email.data}\nReason: {form.reason.data}\nAssets: {form.assets.data}\n\nMessage:\n{form.message.data}")
         try:
             mail.send(msg)
             flash('Thank you for contacting us. We will get back to you soon!', 'success')
@@ -163,6 +169,18 @@ def contact():
             flash('Error sending message. Please try again later.', 'danger')
         return redirect(url_for('contact'))
     return render_template('contact.html', form=form)
+
+# Serve uploaded files (gallery, protected)
+@app.route('/uploads/<filename>')
+@login_required
+def uploaded_file(filename):
+    file_record = GalleryFile.query.filter_by(stored_filename=filename).first_or_404()
+    return send_file(os.path.join(app.config['UPLOAD_FOLDER'], filename), as_attachment=False)
+
+# Serve blog images (public)
+@app.route('/blog-images/<filename>')
+def blog_image(filename):
+    return send_file(os.path.join(BLOG_IMAGES_FOLDER, filename), as_attachment=False)
 
 # ================== AUTHENTICATION ==================
 @app.route('/register', methods=['GET', 'POST'])
@@ -241,7 +259,7 @@ def forgot_password():
 @app.route('/reset-password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
     try:
-        email = serializer.loads(token, salt='password-reset-salt', max_age=3600)  # 1 hour
+        email = serializer.loads(token, salt='password-reset-salt', max_age=3600)
     except SignatureExpired:
         flash('The reset link has expired. Please request a new one.', 'danger')
         return redirect(url_for('forgot_password'))
@@ -358,7 +376,6 @@ def edit_blog(id):
     form = BlogForm(obj=post)
     if form.validate_on_submit():
         if form.featured_image.data:
-            # Delete old image from Cloudinary? Optional, we can just overwrite
             upload_result = cloudinary.uploader.upload(form.featured_image.data)
             post.featured_image = upload_result['secure_url']
         form.populate_obj(post)
@@ -372,7 +389,6 @@ def edit_blog(id):
 @admin_required
 def delete_blog(id):
     post = BlogPost.query.get_or_404(id)
-    # Optionally delete image from Cloudinary
     db.session.delete(post)
     db.session.commit()
     flash('Blog post deleted', 'success')
@@ -403,7 +419,6 @@ def upload_file():
 @admin_required
 def delete_file(id):
     file_record = GalleryFile.query.get_or_404(id)
-    # Optionally delete from Cloudinary
     db.session.delete(file_record)
     db.session.commit()
     flash('File deleted', 'success')
@@ -419,7 +434,6 @@ def upload_inline_image():
     file = request.files['file']
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
-    # Allow only images
     if not file.filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp')):
         return jsonify({'error': 'File type not allowed'}), 400
 

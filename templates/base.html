@@ -39,6 +39,7 @@
         </div>
         <nav>
             <a href="{{ url_for('home') }}">Home</a>
+            <a href="{{ url_for('home') }}#about">About</a>
             <a href="{{ url_for('tools') }}">Tools</a>
             <a href="{{ url_for('gallery') }}">Gallery</a>
             <a href="{{ url_for('blog') }}">Blog</a>
@@ -70,10 +71,51 @@
         {% block content %}{% endblock %}
     </main>
 
-    <footer>
-        <div class="footer-content">
-            <p>&copy; 2026 Mahi CyberAware. All rights reserved.</p>
-            <p>Cybersecurity & Penetration Testing</p>
+    <!-- Footer (same on all pages) -->
+    <footer class="site-footer">
+        <div class="footer-columns">
+            <div class="footer-col">
+                <h4>ABOUT US</h4>
+                <ul>
+                    <li><a href="#">Press Release</a></li>
+                    <li><a href="#">Sponsorship-Advertising</a></li>
+                    <li><a href="#">Site Map</a></li>
+                    <li><a href="#">Terms of Services</a></li>
+                    <li><a href="#">Privacy & Policy</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>SOLUTIONS</h4>
+                <ul>
+                    <li><a href="#">Vulnerability Assessment</a></li>
+                    <li><a href="#">Penetration Testing</a></li>
+                    <li><a href="#">Digital Forensics</a></li>
+                    <li><a href="#">Social Engineering</a></li>
+                    <li><a href="#">Compliance Programs</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>SUPPORT</h4>
+                <ul>
+                    <li><a href="#">Submit a Ticket</a></li>
+                    <li><a href="#">Report an Incident</a></li>
+                    <li><a href="#">Vulnerability Disclosure Policy</a></li>
+                    <li><a href="#">Contact us</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>EDUCATION</h4>
+                <ul>
+                    <li><a href="#">Courses - Login</a></li>
+                    <li><a href="#">Premium Articles - Login</a></li>
+                    <li><a href="#">Patreon - Hacking Episodes</a></li>
+                    <li><a href="#">Offensive Security Courses</a></li>
+                    <li><a href="#">Security Awareness</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Mahi CyberAware. All rights reserved. | Cybersecurity & Penetration Testing</p>
             <div class="social-links">
                 <a href="https://github.com/mahi-cyberaware" target="_blank">
                     <img src="{{ url_for('static', filename='assets/github.png') }}" alt="GitHub">
