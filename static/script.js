@@ -2,17 +2,22 @@
 const themeToggle = document.getElementById('theme-toggle');
 const htmlElement = document.documentElement;
 
+// Check for saved theme
 const savedTheme = localStorage.getItem('theme') || 'light';
 htmlElement.setAttribute('data-theme', savedTheme);
-themeToggle.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+if (themeToggle) {
+    themeToggle.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+}
 
-themeToggle.addEventListener('click', () => {
-    const currentTheme = htmlElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    htmlElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-    themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
-});
+if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+        const currentTheme = htmlElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        htmlElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+    });
+}
 
 // ===== UPLOAD PROGRESS BAR =====
 document.addEventListener('DOMContentLoaded', function() {
@@ -62,7 +67,8 @@ function showFlashMessage(message, category) {
     if (!flashes) {
         flashes = document.createElement('ul');
         flashes.className = 'flashes';
-        document.querySelector('main').prepend(flashes);
+        const main = document.querySelector('main');
+        if (main) main.prepend(flashes);
     }
     const li = document.createElement('li');
     li.className = `flash-${category}`;
@@ -104,6 +110,7 @@ function addCopyButtons() {
             }
         });
 
+        // Ensure pre is wrapped in a container
         if (window.getComputedStyle(pre).position !== 'relative') {
             const wrapper = document.createElement('div');
             wrapper.className = 'code-block-container';
