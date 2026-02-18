@@ -7,25 +7,30 @@
     <div class="hero-overlay"></div>
     <div class="hero-content">
         <h1>Media Gallery</h1>
-        <p>Browse images, videos, and code files uploaded by our community.</p>
+        <p>Browse images, videos, and code files.</p>
     </div>
 </section>
 
-<h1 class="center">Media Gallery</h1>
+<!-- Search Bar (filters within active tab) -->
+<div class="search-container">
+    <input type="text" id="gallery-search" placeholder="Search in current tab...">
+</div>
 
+<!-- Tabs -->
 <div class="gallery-tabs centered">
     <button class="tab active" data-tab="images">Images</button>
     <button class="tab" data-tab="videos">Videos</button>
     <button class="tab" data-tab="code">Code Files</button>
 </div>
 
+<!-- Gallery Content -->
 <div class="gallery-content">
     <!-- Images Tab -->
     <div class="tab-pane active" id="images">
         {% if images %}
-            <div class="file-grid">
+            <div class="file-grid" id="images-grid">
             {% for file in images %}
-                <div class="file-card">
+                <div class="file-card searchable-item">
                     <img src="{{ file.stored_filename }}" alt="{{ file.filename }}">
                     <div class="file-info">
                         <div class="file-name">{{ file.filename }}</div>
@@ -44,9 +49,9 @@
     <!-- Videos Tab -->
     <div class="tab-pane" id="videos">
         {% if videos %}
-            <div class="file-grid">
+            <div class="file-grid" id="videos-grid">
             {% for file in videos %}
-                <div class="file-card">
+                <div class="file-card searchable-item">
                     <video controls>
                         <source src="{{ file.stored_filename }}" type="video/mp4">
                         Your browser does not support the video tag.
@@ -68,9 +73,9 @@
     <!-- Code Files Tab -->
     <div class="tab-pane" id="code">
         {% if code_files %}
-            <div class="file-grid">
+            <div class="file-grid" id="code-grid">
             {% for file in code_files %}
-                <div class="file-card">
+                <div class="file-card searchable-item">
                     <div class="file-info">
                         <div class="file-name">{{ file.filename }}</div>
                         <div class="file-meta">{{ (file.size/1024)|round }} KB</div>
@@ -86,14 +91,39 @@
     </div>
 </div>
 
+<!-- Pagination (if needed) -->
+{% if images_pagination and images_pagination.pages > 1 %}
+<div class="pagination">
+    <!-- your pagination links -->
+</div>
+{% endif %}
+
 <script>
+// Tab switching
 document.querySelectorAll('.tab').forEach(tab => {
     tab.addEventListener('click', () => {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
         document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
         document.getElementById(tab.dataset.tab).classList.add('active');
+        // Clear search
+        document.getElementById('gallery-search').value = '';
+        document.querySelectorAll('.file-card').forEach(card => card.style.display = 'block');
     });
 });
+
+// Search within active tab
+const gallerySearch = document.getElementById('gallery-search');
+if (gallerySearch) {
+    gallerySearch.addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        const activePane = document.querySelector('.tab-pane.active');
+        const items = activePane.querySelectorAll('.searchable-item');
+        items.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            item.style.display = text.includes(query) ? 'block' : 'none';
+        });
+    });
+}
 </script>
 {% endblock %}

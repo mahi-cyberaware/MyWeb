@@ -11,77 +11,113 @@
 </div>
 
 <h2>Recent Tools</h2>
-{% if tools %}
-    <table class="admin-table">
-        <thead><tr><th>Title</th><th>Date</th><th>Actions</th></tr></thead>
-        <tbody>
+<div class="admin-cards">
+    {% if tools %}
         {% for tool in tools %}
-        <tr>
-            <td>{{ tool.title }}</td>
-            <td>{{ tool.date_posted.strftime('%d/%m/%Y') }}</td>
-            <td>
+        <div class="admin-card">
+            <h3>{{ tool.title }}</h3>
+            <p class="admin-date">{{ tool.date_posted.strftime('%d/%m/%Y') }}</p>
+            <div class="admin-actions">
                 <a href="{{ url_for('edit_tool', id=tool.id) }}" class="btn small">Edit</a>
-                <a href="{{ url_for('delete_tool', id=tool.id) }}" class="btn small danger" onclick="return confirm('Delete?')">Delete</a>
-            </td>
-        </tr>
+                <a href="{{ url_for('delete_tool', id=tool.id) }}" class="btn small danger" onclick="return confirm('Delete this tool?')">Delete</a>
+            </div>
+        </div>
         {% endfor %}
-        </tbody>
-    </table>
-{% else %}<p>No tools yet.</p>{% endif %}
+    {% else %}
+        <p>No tools yet.</p>
+    {% endif %}
+</div>
 
 <h2>Recent Blog Posts</h2>
-{% if posts %}
-    <table class="admin-table">
-        <thead><tr><th>Title</th><th>Date</th><th>Actions</th></tr></thead>
-        <tbody>
+<div class="admin-cards">
+    {% if posts %}
         {% for post in posts %}
-        <tr>
-            <td>{{ post.title }}</td>
-            <td>{{ post.date_posted.strftime('%d/%m/%Y') }}</td>
-            <td>
+        <div class="admin-card">
+            <h3>{{ post.title }}</h3>
+            <p class="admin-date">{{ post.date_posted.strftime('%d/%m/%Y') }}</p>
+            <div class="admin-actions">
                 <a href="{{ url_for('edit_blog', id=post.id) }}" class="btn small">Edit</a>
-                <a href="{{ url_for('delete_blog', id=post.id) }}" class="btn small danger" onclick="return confirm('Delete?')">Delete</a>
-            </td>
-        </tr>
+                <a href="{{ url_for('delete_blog', id=post.id) }}" class="btn small danger" onclick="return confirm('Delete this post?')">Delete</a>
+            </div>
+        </div>
         {% endfor %}
-        </tbody>
-    </table>
-{% else %}<p>No blog posts yet.</p>{% endif %}
+    {% else %}
+        <p>No blog posts yet.</p>
+    {% endif %}
+</div>
 
 <h2>Recent News</h2>
-{% if news %}
-    <table class="admin-table">
-        <thead><tr><th>Title</th><th>Date</th><th>Actions</th></tr></thead>
-        <tbody>
+<div class="admin-cards">
+    {% if news %}
         {% for item in news %}
-        <tr>
-            <td>{{ item.title }}</td>
-            <td>{{ item.date_posted.strftime('%d/%m/%Y') }}</td>
-            <td>
+        <div class="admin-card">
+            <h3>{{ item.title }}</h3>
+            <p class="admin-date">{{ item.date_posted.strftime('%d/%m/%Y') }}</p>
+            <div class="admin-actions">
                 <a href="{{ url_for('edit_news', id=item.id) }}" class="btn small">Edit</a>
-                <a href="{{ url_for('delete_news', id=item.id) }}" class="btn small danger" onclick="return confirm('Delete?')">Delete</a>
-            </td>
-        </tr>
+                <a href="{{ url_for('delete_news', id=item.id) }}" class="btn small danger" onclick="return confirm('Delete this news?')">Delete</a>
+            </div>
+        </div>
         {% endfor %}
-        </tbody>
-    </table>
-{% else %}<p>No news yet.</p>{% endif %}
+    {% else %}
+        <p>No news yet.</p>
+    {% endif %}
+</div>
 
 <h2>Recent Uploaded Files</h2>
-{% if files %}
-    <table class="admin-table">
-        <thead><tr><th>Filename</th><th>Size</th><th>Actions</th></tr></thead>
-        <tbody>
+<div class="admin-cards">
+    {% if files %}
         {% for file in files %}
-        <tr>
-            <td>{{ file.filename }}</td>
-            <td>{{ (file.size/1024)|round }} KB</td>
-            <td>
-                <a href="{{ url_for('delete_file', id=file.id) }}" class="btn small danger" onclick="return confirm('Delete?')">Delete</a>
-            </td>
-        </tr>
+        <div class="admin-card">
+            <h3>{{ file.filename }}</h3>
+            <p class="admin-date">{{ (file.size/1024)|round }} KB</p>
+            <div class="admin-actions">
+                <a href="{{ url_for('delete_file', id=file.id) }}" class="btn small danger" onclick="return confirm('Delete this file?')">Delete</a>
+            </div>
+        </div>
         {% endfor %}
-        </tbody>
-    </table>
-{% else %}<p>No files uploaded yet.</p>{% endif %}
+    {% else %}
+        <p>No files uploaded yet.</p>
+    {% endif %}
+</div>
+
+<style>
+.admin-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin: 1rem 0 2rem;
+}
+.admin-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    box-shadow: var(--card-shadow);
+}
+.admin-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: var(--accent);
+}
+.admin-date {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+.admin-card .admin-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+@media (max-width: 1024px) {
+    .admin-cards { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 768px) {
+    .admin-cards { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+    .admin-cards { grid-template-columns: 1fr; }
+}
+</style>
 {% endblock %}

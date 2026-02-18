@@ -11,21 +11,22 @@
     </div>
 </section>
 
-<h1 class="center">Blog Posts</h1>
-
+<!-- Search Bar -->
 <div class="search-container">
     <input type="text" id="search-input" placeholder="Search blog posts...">
 </div>
 
+<!-- Featured Post -->
 {% if posts and posts[0] %}
 <div class="featured-post">
-    <h2 class="post-title"><a href="{{ url_for('blog_post', slug=posts[0].slug) }}">{{ posts[0].title }}</a></h2>
+    <h2><a href="{{ url_for('blog_post', slug=posts[0].slug) }}">{{ posts[0].title }}</a></h2>
     <div class="post-meta">{{ posts[0].date_posted.strftime('%d/%m/%Y') }} | Tags: {{ posts[0].tags }}</div>
     <p class="post-excerpt">{{ posts[0].excerpt or posts[0].content[:200]|striptags }}...</p>
     <a href="{{ url_for('blog_post', slug=posts[0].slug) }}" class="read-more">Read More →</a>
 </div>
 {% endif %}
 
+<!-- Blog Grid -->
 <div class="blog-grid">
     {% for post in posts %}
     <article class="blog-card searchable-item">
@@ -73,4 +74,19 @@
     {% endif %}
 </div>
 {% endif %}
+
+<script>
+// Search functionality
+const searchInput = document.getElementById('search-input');
+if (searchInput) {
+    searchInput.addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        const items = document.querySelectorAll('.searchable-item');
+        items.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            item.style.display = text.includes(query) ? 'block' : 'none';
+        });
+    });
+}
+</script>
 {% endblock %}

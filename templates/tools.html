@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Tools{% endblock %}
+{% block title %}Security Tools{% endblock %}
 {% block content %}
 
 <!-- Hero for Tools -->
@@ -11,10 +11,12 @@
     </div>
 </section>
 
-<!-- Search and filters (existing) -->
+<!-- Search Bar -->
 <div class="search-container">
     <input type="text" id="search-input" placeholder="Search tools...">
 </div>
+
+<!-- Category Filter -->
 <div class="tool-filters">
     <button class="filter active" data-filter="all">All Tools</button>
     {% for category in categories %}
@@ -22,6 +24,7 @@
     {% endfor %}
 </div>
 
+<!-- Tools Grid -->
 <div class="tools-grid">
     {% for tool in tools %}
     <div class="tool-card searchable-item" data-category="{{ tool.category }}">
@@ -74,6 +77,7 @@
 {% endif %}
 
 <script>
+// Filter buttons
 document.querySelectorAll('.filter').forEach(btn => {
     btn.addEventListener('click', () => {
         document.querySelectorAll('.filter').forEach(b => b.classList.remove('active'));
