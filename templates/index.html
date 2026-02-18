@@ -2,7 +2,7 @@
 {% block title %}Home{% endblock %}
 {% block content %}
 
-<!-- Hero Section -->
+<!-- Hero Section (full width) -->
 <section class="hero-section" style="background-image: url('{{ url_for('static', filename='assets/homehero.png') }}');">
     <div class="hero-overlay"></div>
     <div class="hero-content">
@@ -21,118 +21,134 @@
     </div>
 </section>
 
-<!-- Stats Section (4 columns) -->
-<div class="stats-container">
-    <a href="{{ url_for('tools') }}" class="stat-link">
-        <div class="stat-item">
-            <span class="stat-number">{{ tool_count }}</span>
-            <span class="stat-label">Tools</span>
+<!-- Stats Section (full width) -->
+<section class="stats-section">
+    <div class="section-container">
+        <div class="stats-container">
+            <a href="{{ url_for('tools') }}" class="stat-link">
+                <div class="stat-item">
+                    <span class="stat-number">{{ tool_count }}</span>
+                    <span class="stat-label">Tools</span>
+                </div>
+            </a>
+            <a href="{{ url_for('gallery') }}" class="stat-link">
+                <div class="stat-item">
+                    <span class="stat-number">{{ file_count }}</span>
+                    <span class="stat-label">Files</span>
+                </div>
+            </a>
+            <a href="{{ url_for('blog') }}" class="stat-link">
+                <div class="stat-item">
+                    <span class="stat-number">{{ blog_count }}</span>
+                    <span class="stat-label">Blogs</span>
+                </div>
+            </a>
+            <a href="{{ url_for('home') }}#news" class="stat-link">
+                <div class="stat-item">
+                    <span class="stat-number">{{ news_count }}</span>
+                    <span class="stat-label">News</span>
+                </div>
+            </a>
         </div>
-    </a>
-    <a href="{{ url_for('gallery') }}" class="stat-link">
-        <div class="stat-item">
-            <span class="stat-number">{{ file_count }}</span>
-            <span class="stat-label">Files</span>
-        </div>
-    </a>
-    <a href="{{ url_for('blog') }}" class="stat-link">
-        <div class="stat-item">
-            <span class="stat-number">{{ blog_count }}</span>
-            <span class="stat-label">Blogs</span>
-        </div>
-    </a>
-    <a href="{{ url_for('home') }}#news" class="stat-link">
-        <div class="stat-item">
-            <span class="stat-number">{{ news_count }}</span>
-            <span class="stat-label">News</span>
-        </div>
-    </a>
-</div>
-
-<!-- Section: Explore Our Latest News Insights -->
-<section id="news" class="latest-news">
-    <h2 class="section-title">Explore Our Latest News Insights</h2>
-    <div class="section-underline"></div>
-    <div class="card-grid">
-        {% for news in latest_news %}
-        <div class="news-card">
-            {% if news.image_url %}
-                <img src="{{ news.image_url }}" alt="{{ news.title }}" class="card-image">
-            {% endif %}
-            <h3>{{ news.title }}</h3>
-            <p>{{ news.excerpt or news.content[:100] }}...</p>
-            <a href="{{ url_for('news_detail', id=news.id) }}" class="btn small">Read More →</a>
-        </div>
-        {% else %}
-        <p>No news updates yet.</p>
-        {% endfor %}
     </div>
 </section>
 
-<!-- Tools Category Buttons -->
-<div class="service-slider">
-    <a href="{{ url_for('tools') }}?category=Penetration%20Testing" class="service-card">Penetration Testing</a>
-    <a href="{{ url_for('tools') }}?category=Vulnerability%20Assessment" class="service-card">Vulnerability Assessment</a>
-    <a href="{{ url_for('tools') }}?category=Red%20Team%20Operations" class="service-card">Red Team Operations</a>
-    <a href="{{ url_for('tools') }}?category=Security%20Awareness%20Training" class="service-card">Security Awareness Training</a>
-    <a href="{{ url_for('tools') }}?category=Digital%20Forensics" class="service-card">Digital Forensics</a>
-    <a href="{{ url_for('tools') }}?category=Android%20Controls" class="service-card">Android Controls</a>
-    <a href="{{ url_for('tools') }}?category=Social%20Media" class="service-card">Social Media</a>
-    <a href="{{ url_for('tools') }}?category=Others" class="service-card">Others</a>
-</div>
-
-<!-- Section: Explore Our Latest Insights (Blogs/Tools) -->
-<section class="latest-blogs">
-    <h2 class="section-title">Explore Our Latest Insights</h2>
-    <div class="section-underline"></div>
-    <div class="card-grid">
-        {% for post in latest_posts %}
-        <div class="blog-card">
-            {% if post.featured_image %}
-                <img src="{{ post.featured_image }}" alt="{{ post.title }}" class="card-image">
-            {% endif %}
-            <h3>{{ post.title }}</h3>
-            <p>{{ post.excerpt or post.content[:100] }}...</p>
-            <a href="{{ url_for('blog_post', slug=post.slug) }}" class="btn small">Read More →</a>
+<!-- News Section (full width) -->
+<section class="news-section" id="news">
+    <div class="section-container">
+        <h2 class="section-title">Explore Our Latest News Insights</h2>
+        <div class="section-underline"></div>
+        <div class="card-grid">
+            {% for news in latest_news %}
+            <div class="news-card">
+                {% if news.image_url %}
+                    <img src="{{ news.image_url }}" alt="{{ news.title }}" class="card-image">
+                {% endif %}
+                <h3>{{ news.title }}</h3>
+                <p>{{ news.excerpt or news.content[:100] }}...</p>
+                <a href="{{ url_for('news_detail', id=news.id) }}" class="btn small">Read More →</a>
+            </div>
+            {% else %}
+            <p>No news updates yet.</p>
+            {% endfor %}
         </div>
-        {% else %}
-        <p>No blog posts yet.</p>
-        {% endfor %}
     </div>
 </section>
 
-<!-- Contact Section -->
-<section class="contact-section">
-    <div class="contact-left">
-        <h2>Let's Secure Your Digital Infrastructure</h2>
-        <p>Partner with us to identify vulnerabilities, strengthen defenses, and build a resilient security posture. Our experts provide tailored solutions for your organization.</p>
-        <ul class="highlights">
-            <li>🔒 Expert-led penetration testing</li>
-            <li>🔍 Comprehensive vulnerability assessments</li>
-            <li>🛡️ Custom security training</li>
-        </ul>
+<!-- Service Slider Section (full width) -->
+<section class="service-slider-section">
+    <div class="section-container">
+        <div class="service-slider">
+            <a href="{{ url_for('tools') }}?category=Penetration%20Testing" class="service-card">Penetration Testing</a>
+            <a href="{{ url_for('tools') }}?category=Vulnerability%20Assessment" class="service-card">Vulnerability Assessment</a>
+            <a href="{{ url_for('tools') }}?category=Red%20Team%20Operations" class="service-card">Red Team Operations</a>
+            <a href="{{ url_for('tools') }}?category=Security%20Awareness%20Training" class="service-card">Security Awareness Training</a>
+            <a href="{{ url_for('tools') }}?category=Digital%20Forensics" class="service-card">Digital Forensics</a>
+            <a href="{{ url_for('tools') }}?category=Android%20Controls" class="service-card">Android Controls</a>
+            <a href="{{ url_for('tools') }}?category=Social%20Media" class="service-card">Social Media</a>
+            <a href="{{ url_for('tools') }}?category=Others" class="service-card">Others</a>
+        </div>
     </div>
-    <div class="contact-right">
-        <form method="POST" action="{{ url_for('contact') }}" class="contact-form">
-            {{ contact_form.hidden_tag() }}
-            <div class="form-group">
-                {{ contact_form.name.label }}*
-                {{ contact_form.name(class="form-control") }}
+</section>
+
+<!-- Blogs Section (full width) -->
+<section class="blogs-section">
+    <div class="section-container">
+        <h2 class="section-title">Explore Our Latest Insights</h2>
+        <div class="section-underline"></div>
+        <div class="card-grid">
+            {% for post in latest_posts %}
+            <div class="blog-card">
+                {% if post.featured_image %}
+                    <img src="{{ post.featured_image }}" alt="{{ post.title }}" class="card-image">
+                {% endif %}
+                <h3>{{ post.title }}</h3>
+                <p>{{ post.excerpt or post.content[:100] }}...</p>
+                <a href="{{ url_for('blog_post', slug=post.slug) }}" class="btn small">Read More →</a>
             </div>
-            <div class="form-group">
-                {{ contact_form.email.label }}*
-                {{ contact_form.email(class="form-control") }}
+            {% else %}
+            <p>No blog posts yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Contact Section (full width) -->
+<section class="contact-section-wrapper">
+    <div class="section-container">
+        <div class="contact-section">
+            <div class="contact-left">
+                <h2>Let's Secure Your Digital Infrastructure</h2>
+                <p>Partner with us to identify vulnerabilities, strengthen defenses, and build a resilient security posture. Our experts provide tailored solutions for your organization.</p>
+                <ul class="highlights">
+                    <li>🔒 Expert-led penetration testing</li>
+                    <li>🔍 Comprehensive vulnerability assessments</li>
+                    <li>🛡️ Custom security training</li>
+                </ul>
             </div>
-            <div class="form-group">
-                {{ contact_form.message.label }}*
-                {{ contact_form.message(class="form-control", rows=4) }}
+            <div class="contact-right">
+                <form method="POST" action="{{ url_for('contact') }}" class="contact-form">
+                    {{ contact_form.hidden_tag() }}
+                    <div class="form-group">
+                        {{ contact_form.name.label }}*
+                        {{ contact_form.name(class="form-control") }}
+                    </div>
+                    <div class="form-group">
+                        {{ contact_form.email.label }}*
+                        {{ contact_form.email(class="form-control") }}
+                    </div>
+                    <div class="form-group">
+                        {{ contact_form.message.label }}*
+                        {{ contact_form.message(class="form-control", rows=4) }}
+                    </div>
+                    <div class="form-group">
+                        {{ contact_form.captcha.label }}*
+                        {{ contact_form.captcha(class="form-control") }}
+                    </div>
+                    <button type="submit" class="btn primary">Send Message</button>
+                </form>
             </div>
-            <div class="form-group">
-                {{ contact_form.captcha.label }}*
-                {{ contact_form.captcha(class="form-control") }}
-            </div>
-            <button type="submit" class="btn primary">Send Message</button>
-        </form>
+        </div>
     </div>
 </section>
 
