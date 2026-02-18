@@ -144,7 +144,7 @@ nav a:hover::after {
     background: var(--border);
 }
 
-/* ===== MAIN CONTENT (now full width) ===== */
+/* ===== MAIN CONTENT (full width) ===== */
 main {
     width: 100%;
     margin: 0;
@@ -153,7 +153,7 @@ main {
 
 /* ===== SECTION CONTAINERS ===== */
 .section-container {
-    max-width: 1200px;
+    max-width: 1400px; /* increased from 1200px to allow larger cards */
     margin: 0 auto;
     padding: 4rem 2rem;
 }
@@ -169,7 +169,6 @@ main {
     background: var(--bg-primary);
 }
 
-/* Alternate background for visual separation */
 .news-section,
 .blogs-section {
     background: var(--bg-secondary);
@@ -282,8 +281,8 @@ main {
 }
 
 .btn.small {
-    padding: 0.4rem 1.2rem;
-    font-size: 0.9rem;
+    padding: 0.6rem 1.5rem; /* slightly larger */
+    font-size: 0.95rem;
 }
 
 .btn.small.danger {
@@ -321,16 +320,16 @@ main {
 .stat-item {
     text-align: center;
     background: var(--bg-primary);
-    padding: 1.5rem 2rem;
+    padding: 2rem 2.5rem; /* larger padding */
     border-radius: 1rem;
     border: 1px solid var(--border);
     box-shadow: var(--card-shadow);
-    min-width: 150px;
+    min-width: 180px;
 }
 
 .stat-number {
     display: block;
-    font-size: 2.5rem;
+    font-size: 3rem; /* larger */
     font-weight: 700;
     color: var(--accent);
     line-height: 1.2;
@@ -339,20 +338,21 @@ main {
 .stat-label {
     color: var(--text-secondary);
     text-transform: uppercase;
-    font-size: 0.9rem;
+    font-size: 1rem;
+    letter-spacing: 1px;
 }
 
 /* ===== SECTIONS TITLE ===== */
 .section-title {
     text-align: center;
-    font-size: 2.5rem;
+    font-size: 2.8rem; /* slightly larger */
     color: var(--accent);
     margin-bottom: 0.5rem;
     font-family: 'Orbitron', sans-serif;
 }
 
 .section-underline {
-    width: 100px;
+    width: 120px; /* wider */
     height: 4px;
     background: var(--accent);
     margin: 0 auto 3rem;
@@ -367,19 +367,19 @@ main {
     margin: 2rem 0;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
     .card-grid {
         grid-template-columns: repeat(3, 1fr);
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
     .card-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 600px) {
     .card-grid {
         grid-template-columns: 1fr;
     }
@@ -387,12 +387,14 @@ main {
 
 .news-card, .blog-card, .tool-card {
     background: var(--bg-primary);
-    border-radius: 1rem;
+    border-radius: 1.2rem; /* slightly more rounded */
     overflow: hidden;
     border: 1px solid var(--border);
     transition: transform 0.3s, box-shadow 0.3s;
     display: flex;
     flex-direction: column;
+    height: 100%;
+    min-height: 420px; /* increased card height */
 }
 
 .news-card:hover, .blog-card:hover, .tool-card:hover {
@@ -403,20 +405,22 @@ main {
 
 .card-image {
     width: 100%;
-    height: 180px;
+    height: 220px; /* larger image */
     object-fit: cover;
 }
 
 .news-card h3, .blog-card h3, .tool-card h3 {
-    padding: 1rem 1rem 0.5rem;
+    padding: 1.2rem 1.2rem 0.5rem;
     color: var(--accent);
-    font-size: 1.2rem;
+    font-size: 1.4rem; /* larger title */
 }
 
 .news-card p, .blog-card p, .tool-description {
-    padding: 0 1rem 1rem;
+    padding: 0 1.2rem 1.2rem;
     color: var(--text-secondary);
     flex-grow: 1;
+    font-size: 1rem;
+    line-height: 1.5;
 }
 
 /* ===== SERVICE SLIDER ===== */
@@ -454,6 +458,7 @@ main {
     transition: all 0.2s;
     text-decoration: none;
     display: inline-block;
+    font-size: 1rem;
 }
 
 .service-card:hover {
@@ -481,11 +486,13 @@ main {
 .contact-left h2 {
     color: var(--accent);
     margin-bottom: 1rem;
+    font-size: 2.2rem;
 }
 
 .contact-left p {
     color: var(--text-secondary);
     margin-bottom: 1.5rem;
+    font-size: 1.1rem;
 }
 
 .highlights {
@@ -496,6 +503,7 @@ main {
 .highlights li {
     margin-bottom: 0.5rem;
     color: var(--text-primary);
+    font-size: 1.1rem;
 }
 
 .contact-form .form-group {
@@ -525,11 +533,11 @@ main {
     box-shadow: 0 0 10px var(--accent);
 }
 
-/* ===== FORM CENTERING ===== */
+/* ===== FORM CENTERING (all auth forms) ===== */
 .form-container {
-    max-width: 600px;
+    max-width: 500px; /* slightly wider */
     margin: 2rem auto;
-    padding: 2rem;
+    padding: 2.5rem;
     background: var(--bg-secondary);
     border-radius: 1rem;
     border: 1px solid var(--border);
@@ -539,6 +547,8 @@ main {
 .form-container h1 {
     color: var(--accent);
     margin-bottom: 2rem;
+    text-align: center;
+    font-size: 2.2rem;
 }
 
 .form-group {
@@ -547,14 +557,14 @@ main {
 
 .form-group label {
     display: block;
-    margin-bottom: 0.3rem;
+    margin-bottom: 0.5rem;
     color: var(--accent);
     font-weight: 600;
 }
 
 .form-control, .form-control-file, select.form-control, textarea.form-control {
     width: 100%;
-    padding: 0.8rem;
+    padding: 0.9rem; /* slightly larger padding */
     background: var(--bg-primary);
     border: 1px solid var(--border);
     border-radius: 8px;
@@ -570,14 +580,20 @@ main {
 }
 
 textarea.form-control {
-    min-height: 100px;
+    min-height: 120px;
     resize: vertical;
+}
+
+button[type="submit"], .btn.primary {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.1rem;
 }
 
 /* ===== ABOUT PAGE ===== */
 .about-page {
     max-width: 800px;
-    margin: 0 auto;
+    margin: 2rem auto;
     padding: 2rem;
     background: var(--bg-secondary);
     border-radius: 1rem;
@@ -587,12 +603,14 @@ textarea.form-control {
 .about-page h1 {
     color: var(--accent);
     margin-bottom: 0.5rem;
+    text-align: center;
 }
 
 .about-page .subheading {
     color: var(--text-secondary);
     font-size: 1.2rem;
     margin-bottom: 2rem;
+    text-align: center;
 }
 
 .about-page h2 {
@@ -603,6 +621,7 @@ textarea.form-control {
 .about-page p {
     margin-bottom: 1rem;
     color: var(--text-secondary);
+    line-height: 1.8;
 }
 
 .about-page ul {

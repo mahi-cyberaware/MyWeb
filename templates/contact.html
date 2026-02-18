@@ -1,27 +1,27 @@
 {% extends "base.html" %}
 {% block title %}Contact Us{% endblock %}
 {% block content %}
-<div class="centered-form">
-    <h1 class="form-title">Contact Us</h1>
-    <form method="POST" class="modern-form">
+<div class="form-container">
+    <h1>Contact Us</h1>
+    <form method="POST">
         {{ form.hidden_tag() }}
         <div class="form-group">
-            {{ form.name.label(class="form-label") }}
-            {{ form.name(class="form-control", placeholder="Your name") }}
+            {{ form.name.label }}*
+            {{ form.name(class="form-control") }}
         </div>
         <div class="form-group">
-            {{ form.email.label(class="form-label") }}
-            {{ form.email(class="form-control", placeholder="Your email") }}
+            {{ form.email.label }}*
+            {{ form.email(class="form-control") }}
         </div>
         <div class="form-group">
-            {{ form.message.label(class="form-label") }}
-            {{ form.message(class="form-control", rows=5, placeholder="Your message") }}
+            {{ form.message.label }}*
+            {{ form.message(class="form-control", rows=5) }}
         </div>
         <div class="form-group">
-            {{ form.captcha.label(class="form-label") }}
-            {{ form.captcha(class="form-control", placeholder="Enter result") }}
+            {{ form.captcha.label }}*
+            {{ form.captcha(class="form-control") }}
         </div>
-        <button type="submit" class="btn primary full-width">Send Message</button>
+        <button type="submit" class="btn primary">Send Message</button>
     </form>
 </div>
 {% endblock %}
