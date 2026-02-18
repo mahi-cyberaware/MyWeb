@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}{{ news.title }}{% endblock %}
+{% block content %}
+<article class="post-container">
+    <h1>{{ news.title }}</h1>
+    <div class="post-meta">
+        {{ news.date_posted.strftime('%d/%m/%Y') }}
+    </div>
+    
+    {% if news.image_url %}
+        <img src="{{ news.image_url }}" alt="{{ news.title }}" class="featured-image">
+    {% endif %}
+    
+    <div class="post-content">
+        {{ news.content|markdown|safe }}
+    </div>
+    
+    <a href="{{ url_for('home') }}#news" class="back-btn">← Back to News</a>
+</article>
+{% endblock %}

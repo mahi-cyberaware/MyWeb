@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileField, FileRequired, FileAllowed
+from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, TextAreaField, SelectField, BooleanField, URLField, PasswordField, EmailField
 from wtforms.validators import DataRequired, Optional, URL, Email, EqualTo, Length, ValidationError
 from models import User
@@ -40,7 +40,7 @@ class UploadFileForm(FlaskForm):
         ('video', 'Video'),
         ('code', 'Code File')
     ], validators=[DataRequired()])
-    file = FileField('File', validators=[FileRequired()])
+    file = FileField('File', validators=[DataRequired()])
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=3, max=80)])

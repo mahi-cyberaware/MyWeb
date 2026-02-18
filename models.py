@@ -23,7 +23,7 @@ class Tool(db.Model):
     language = db.Column(db.String(100))
     code = db.Column(db.Text)
     github_url = db.Column(db.String(500))
-    image_url = db.Column(db.String(300))  # Cloudinary URL for tool image
+    image_url = db.Column(db.String(300))
     date_posted = db.Column(db.DateTime, default=datetime.utcnow)
 
 class BlogPost(db.Model):
@@ -32,7 +32,7 @@ class BlogPost(db.Model):
     slug = db.Column(db.String(200), unique=True, nullable=False)
     excerpt = db.Column(db.Text)
     content = db.Column(db.Text, nullable=False)
-    featured_image = db.Column(db.String(300))  # Cloudinary URL
+    featured_image = db.Column(db.String(300))
     tags = db.Column(db.String(300))
     published = db.Column(db.Boolean, default=False)
     date_posted = db.Column(db.DateTime, default=datetime.utcnow)
@@ -42,7 +42,7 @@ class News(db.Model):
     title = db.Column(db.String(200), nullable=False)
     excerpt = db.Column(db.Text)
     content = db.Column(db.Text, nullable=False)
-    image_url = db.Column(db.String(300))  # Cloudinary URL
+    image_url = db.Column(db.String(300))
     date_posted = db.Column(db.DateTime, default=datetime.utcnow)
 
 class GalleryFile(db.Model):

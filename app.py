@@ -121,13 +121,15 @@ def home():
     tool_count = Tool.query.count()
     file_count = GalleryFile.query.count()
     blog_count = BlogPost.query.filter_by(published=True).count()
-    latest_posts = BlogPost.query.filter_by(published=True).order_by(BlogPost.date_posted.desc()).limit(3).all()
-    latest_news = News.query.order_by(News.date_posted.desc()).limit(3).all()
+    news_count = News.query.count()
+    latest_posts = BlogPost.query.filter_by(published=True).order_by(BlogPost.date_posted.desc()).limit(4).all()
+    latest_news = News.query.order_by(News.date_posted.desc()).limit(4).all()
     contact_form = ContactForm()
     return render_template('index.html',
                            tool_count=tool_count,
                            file_count=file_count,
                            blog_count=blog_count,
+                           news_count=news_count,
                            latest_posts=latest_posts,
                            latest_news=latest_news,
                            contact_form=contact_form)
@@ -171,6 +173,11 @@ def blog_post(slug):
     post = BlogPost.query.filter_by(slug=slug, published=True).first_or_404()
     return render_template('blog_post.html', post=post)
 
+@app.route('/news/<int:id>')
+def news_detail(id):
+    news = News.query.get_or_404(id)
+    return render_template('news_detail.html', news=news)
+
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
     form = ContactForm()
@@ -182,9 +189,15 @@ def contact():
             mail.send(msg)
             flash('Thank you for contacting us. We will get back to you soon!', 'success')
         except Exception as e:
-            flash('Error sending message. Please try again later.', 'danger')
+            # Log the error (in production, use logging)
+            print(f"Email error: {e}")
+            flash('Error sending message. Please try again later or contact us directly at myprogrammwork1@gmail.com', 'danger')
         return redirect(url_for('contact'))
     return render_template('contact.html', form=form)
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
 
 # ================== AUTHENTICATION ==================
 @app.route('/register', methods=['GET', 'POST'])
