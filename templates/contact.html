@@ -1,38 +1,27 @@
 {% extends "base.html" %}
-{% block title %}Contact{% endblock %}
+{% block title %}Contact Us{% endblock %}
 {% block content %}
-
-<!-- Hero for Contact -->
-<section class="page-hero" style="background-image: url('{{ url_for('static', filename='assets/contacthero.png') }}');">
-    <div class="hero-overlay"></div>
-    <div class="hero-content">
-        <h1>Contact Us</h1>
-        <p>Get in touch with our team for inquiries, partnerships, or support.</p>
-    </div>
-</section>
-
-<h1 class="center">Contact Us</h1>
-
-<div class="form-container">
-    <form method="POST">
+<div class="centered-form">
+    <h1 class="form-title">Contact Us</h1>
+    <form method="POST" class="modern-form">
         {{ form.hidden_tag() }}
         <div class="form-group">
-            {{ form.name.label }}*
-            {{ form.name(class="form-control") }}
+            {{ form.name.label(class="form-label") }}
+            {{ form.name(class="form-control", placeholder="Your name") }}
         </div>
         <div class="form-group">
-            {{ form.email.label }}*
-            {{ form.email(class="form-control") }}
+            {{ form.email.label(class="form-label") }}
+            {{ form.email(class="form-control", placeholder="Your email") }}
         </div>
         <div class="form-group">
-            {{ form.message.label }}*
-            {{ form.message(class="form-control", rows=5) }}
+            {{ form.message.label(class="form-label") }}
+            {{ form.message(class="form-control", rows=5, placeholder="Your message") }}
         </div>
         <div class="form-group">
-            {{ form.captcha.label }}*
-            {{ form.captcha(class="form-control") }}
+            {{ form.captcha.label(class="form-label") }}
+            {{ form.captcha(class="form-control", placeholder="Enter result") }}
         </div>
-        <button type="submit" class="btn primary">Send Message</button>
+        <button type="submit" class="btn primary full-width">Send Message</button>
     </form>
 </div>
 {% endblock %}

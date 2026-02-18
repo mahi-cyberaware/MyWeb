@@ -1,41 +1,40 @@
 {% extends "base.html" %}
 {% block title %}Register{% endblock %}
 {% block content %}
-<h1 class="center">Register</h1>
-
-<div class="form-container">
-    <form method="POST">
+<div class="centered-form">
+    <h1 class="form-title">Register</h1>
+    <form method="POST" class="modern-form">
         {{ form.hidden_tag() }}
         <div class="form-group">
-            {{ form.username.label }}
-            {{ form.username(class="form-control") }}
+            {{ form.username.label(class="form-label") }}
+            {{ form.username(class="form-control", placeholder="Choose username") }}
             {% for error in form.username.errors %}
-                <span style="color: red;">{{ error }}</span>
+                <span class="error">{{ error }}</span>
             {% endfor %}
         </div>
         <div class="form-group">
-            {{ form.email.label }}
-            {{ form.email(class="form-control") }}
+            {{ form.email.label(class="form-label") }}
+            {{ form.email(class="form-control", placeholder="Your email") }}
             {% for error in form.email.errors %}
-                <span style="color: red;">{{ error }}</span>
+                <span class="error">{{ error }}</span>
             {% endfor %}
         </div>
         <div class="form-group">
-            {{ form.password.label }}
-            {{ form.password(class="form-control") }}
+            {{ form.password.label(class="form-label") }}
+            {{ form.password(class="form-control", placeholder="Create password") }}
             {% for error in form.password.errors %}
-                <span style="color: red;">{{ error }}</span>
+                <span class="error">{{ error }}</span>
             {% endfor %}
         </div>
         <div class="form-group">
-            {{ form.confirm_password.label }}
-            {{ form.confirm_password(class="form-control") }}
+            {{ form.confirm_password.label(class="form-label") }}
+            {{ form.confirm_password(class="form-control", placeholder="Confirm password") }}
             {% for error in form.confirm_password.errors %}
-                <span style="color: red;">{{ error }}</span>
+                <span class="error">{{ error }}</span>
             {% endfor %}
         </div>
-        <button type="submit" class="btn primary">Register</button>
+        <button type="submit" class="btn primary full-width">Register</button>
     </form>
-    <p class="center">Already have an account? <a href="{{ url_for('login') }}">Login here</a>.</p>
+    <p class="text-center">Already have an account? <a href="{{ url_for('login') }}">Login here</a>.</p>
 </div>
 {% endblock %}

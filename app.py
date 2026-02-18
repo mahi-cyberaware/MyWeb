@@ -65,14 +65,14 @@ def render_markdown(text):
         'nl2br'
     ])
 
-# ================== DATABASE INIT (BASIC) ==================
+# ================== DATABASE INIT ==================
 _first_request_done = False
 
 @app.before_request
 def before_first_request():
     global _first_request_done
     if not _first_request_done:
-        db.create_all()  # Creates only missing tables
+        db.create_all()
         if not User.query.filter_by(role='admin').first():
             admin = User(
                 username='admin',
@@ -98,40 +98,22 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-# ================== COMPREHENSIVE DATABASE FIX ROUTE ==================
+# ================== TEMPORARY FIX ROUTE (REMOVE AFTER USE) ==================
 @app.route('/fix-db')
 def fix_database():
-    """
-    ONE-TIME route to ensure all tables and required columns exist.
-    DELETE AFTER USE!
-    """
+    """ONE-TIME route to fix missing columns. DELETE AFTER USE!"""
     try:
-        # Create all tables (safe, will skip existing)
         db.create_all()
         inspector = inspect(db.engine)
-
-        # --- Fix 'tool' table: add image_url if missing ---
         if 'tool' in inspector.get_table_names():
-            columns = [col['name'] for col in inspector.get_columns('tool')]
-            if 'image_url' not in columns:
+            cols = [c['name'] for c in inspector.get_columns('tool')]
+            if 'image_url' not in cols:
                 with db.engine.connect() as conn:
                     conn.execute(text('ALTER TABLE tool ADD COLUMN image_url VARCHAR(300)'))
                     conn.commit()
-                msg = "Added 'image_url' column to 'tool' table.<br>"
-            else:
-                msg = "'image_url' column already exists in 'tool' table.<br>"
-        else:
-            msg = "'tool' table not found (should have been created).<br>"
-
-        # --- Ensure 'news' table exists (created by db.create_all) ---
-        if 'news' in inspector.get_table_names():
-            msg += "'news' table exists.<br>"
-        else:
-            msg += "'news' table was created now.<br>"
-
-        return f"✅ Database fix completed.<br>{msg}<br>You can now delete this route."
+        return "Database fix applied. You can now delete this route."
     except Exception as e:
-        return f"❌ Error: {e}"
+        return f"Error: {e}"
 
 # ================== PUBLIC ROUTES ==================
 @app.route('/')
@@ -203,18 +185,6 @@ def contact():
             flash('Error sending message. Please try again later.', 'danger')
         return redirect(url_for('contact'))
     return render_template('contact.html', form=form)
-
-# Serve uploaded files (gallery, protected)
-@app.route('/uploads/<filename>')
-@login_required
-def uploaded_file(filename):
-    file_record = GalleryFile.query.filter_by(stored_filename=filename).first_or_404()
-    return send_file(os.path.join(app.config['UPLOAD_FOLDER'], filename), as_attachment=False)
-
-# Serve blog images (public)
-@app.route('/blog-images/<filename>')
-def blog_image(filename):
-    return send_file(os.path.join(BLOG_IMAGES_FOLDER, filename), as_attachment=False)
 
 # ================== AUTHENTICATION ==================
 @app.route('/register', methods=['GET', 'POST'])
@@ -515,7 +485,7 @@ def delete_file(id):
     flash('File deleted', 'success')
     return redirect(url_for('admin_dashboard'))
 
-# ================== INLINE IMAGE UPLOAD FOR BLOG ==================
+# ================== INLINE IMAGE UPLOAD ==================
 @app.route('/admin/upload-inline-image', methods=['POST'])
 @login_required
 @admin_required
@@ -532,6 +502,5 @@ def upload_inline_image():
     image_url = upload_result['secure_url']
     return jsonify({'location': image_url})
 
-# ================== RUN ==================
 if __name__ == '__main__':
     app.run(debug=True)

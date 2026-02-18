@@ -1,28 +1,27 @@
 {% extends "base.html" %}
 {% block title %}Add News{% endblock %}
 {% block content %}
-<h1 class="center">Add News</h1>
-
-<div class="form-container">
-    <form method="POST" enctype="multipart/form-data">
+<div class="centered-form">
+    <h1 class="form-title">Add News</h1>
+    <form method="POST" enctype="multipart/form-data" class="modern-form">
         {{ form.hidden_tag() }}
         <div class="form-group">
-            {{ form.image.label }}
+            {{ form.image.label(class="form-label") }}
             {{ form.image(class="form-control-file") }}
         </div>
         <div class="form-group">
-            {{ form.title.label }}
-            {{ form.title(class="form-control") }}
+            {{ form.title.label(class="form-label") }}
+            {{ form.title(class="form-control", placeholder="News title") }}
         </div>
         <div class="form-group">
-            {{ form.excerpt.label }}
-            {{ form.excerpt(class="form-control", rows=3) }}
+            {{ form.excerpt.label(class="form-label") }}
+            {{ form.excerpt(class="form-control", rows=3, placeholder="Short excerpt") }}
         </div>
         <div class="form-group">
-            {{ form.content.label }}
-            {{ form.content(class="form-control", rows=8) }}
+            {{ form.content.label(class="form-label") }}
+            {{ form.content(class="form-control", rows=8, placeholder="Full news content") }}
         </div>
-        <button type="submit" class="btn primary">Add News</button>
+        <button type="submit" class="btn primary full-width">Add News</button>
     </form>
 </div>
 {% endblock %}

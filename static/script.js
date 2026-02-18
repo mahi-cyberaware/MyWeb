@@ -2,7 +2,6 @@
 const themeToggle = document.getElementById('theme-toggle');
 const htmlElement = document.documentElement;
 
-// Check for saved theme
 const savedTheme = localStorage.getItem('theme') || 'light';
 htmlElement.setAttribute('data-theme', savedTheme);
 themeToggle.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
@@ -44,11 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (xhr.status === 200) {
                     const response = JSON.parse(xhr.responseText);
-                    if (response.message) {
-                        showFlashMessage(response.message, 'success');
-                    } else {
-                        showFlashMessage('File uploaded successfully!', 'success');
-                    }
+                    showFlashMessage(response.message || 'File uploaded successfully!', 'success');
                     setTimeout(() => location.reload(), 1500);
                 } else {
                     showFlashMessage('Upload failed. Please try again.', 'danger');
@@ -61,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Flash message helper
+// ===== FLASH MESSAGE HELPER =====
 function showFlashMessage(message, category) {
     let flashes = document.querySelector('.flashes');
     if (!flashes) {

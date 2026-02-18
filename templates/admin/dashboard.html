@@ -4,10 +4,10 @@
 <h1 class="center">Admin Panel</h1>
 
 <div class="admin-actions center">
-    <a href="{{ url_for('add_tool') }}" class="btn primary">+ Add Tool</a>
-    <a href="{{ url_for('add_blog') }}" class="btn primary">+ Add Blog Post</a>
-    <a href="{{ url_for('add_news') }}" class="btn primary">+ Add News</a>
-    <a href="{{ url_for('upload_file') }}" class="btn primary">Upload Files</a>
+    <a href="{{ url_for('add_tool') }}" class="btn primary"><i class="fas fa-plus"></i> Add Tool</a>
+    <a href="{{ url_for('add_blog') }}" class="btn primary"><i class="fas fa-plus"></i> Add Blog Post</a>
+    <a href="{{ url_for('add_news') }}" class="btn primary"><i class="fas fa-plus"></i> Add News</a>
+    <a href="{{ url_for('upload_file') }}" class="btn primary"><i class="fas fa-upload"></i> Upload Files</a>
 </div>
 
 <h2>Recent Tools</h2>
@@ -26,8 +26,8 @@
                 <td>{{ tool.title }}</td>
                 <td>{{ tool.date_posted.strftime('%d/%m/%Y') }}</td>
                 <td>
-                    <a href="{{ url_for('edit_tool', id=tool.id) }}" class="btn small">Edit</a>
-                    <a href="{{ url_for('delete_tool', id=tool.id) }}" class="btn small danger" onclick="return confirm('Delete this tool?')">Delete</a>
+                    <a href="{{ url_for('edit_tool', id=tool.id) }}" class="btn small"><i class="fas fa-edit"></i> Edit</a>
+                    <a href="{{ url_for('delete_tool', id=tool.id) }}" class="btn small danger" onclick="return confirm('Delete this tool?')"><i class="fas fa-trash"></i> Delete</a>
                 </td>
             </tr>
         {% endfor %}
@@ -53,8 +53,8 @@
                 <td>{{ post.title }}</td>
                 <td>{{ post.date_posted.strftime('%d/%m/%Y') }}</td>
                 <td>
-                    <a href="{{ url_for('edit_blog', id=post.id) }}" class="btn small">Edit</a>
-                    <a href="{{ url_for('delete_blog', id=post.id) }}" class="btn small danger" onclick="return confirm('Delete this post?')">Delete</a>
+                    <a href="{{ url_for('edit_blog', id=post.id) }}" class="btn small"><i class="fas fa-edit"></i> Edit</a>
+                    <a href="{{ url_for('delete_blog', id=post.id) }}" class="btn small danger" onclick="return confirm('Delete this post?')"><i class="fas fa-trash"></i> Delete</a>
                 </td>
             </tr>
         {% endfor %}
@@ -80,8 +80,8 @@
                 <td>{{ item.title }}</td>
                 <td>{{ item.date_posted.strftime('%d/%m/%Y') }}</td>
                 <td>
-                    <a href="{{ url_for('edit_news', id=item.id) }}" class="btn small">Edit</a>
-                    <a href="{{ url_for('delete_news', id=item.id) }}" class="btn small danger" onclick="return confirm('Delete this news?')">Delete</a>
+                    <a href="{{ url_for('edit_news', id=item.id) }}" class="btn small"><i class="fas fa-edit"></i> Edit</a>
+                    <a href="{{ url_for('delete_news', id=item.id) }}" class="btn small danger" onclick="return confirm('Delete this news?')"><i class="fas fa-trash"></i> Delete</a>
                 </td>
             </tr>
         {% endfor %}
@@ -107,7 +107,7 @@
                 <td>{{ file.filename }}</td>
                 <td>{{ (file.size/1024)|round }} KB</td>
                 <td>
-                    <a href="{{ url_for('delete_file', id=file.id) }}" class="btn small danger" onclick="return confirm('Delete this file?')">Delete</a>
+                    <a href="{{ url_for('delete_file', id=file.id) }}" class="btn small danger" onclick="return confirm('Delete this file?')"><i class="fas fa-trash"></i> Delete</a>
                 </td>
             </tr>
         {% endfor %}

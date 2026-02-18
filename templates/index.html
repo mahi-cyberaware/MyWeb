@@ -49,7 +49,7 @@
             {% endif %}
             <h3>{{ news.title }}</h3>
             <p>{{ news.excerpt or news.content[:100] }}...</p>
-            <a href="{{ url_for('news_detail', id=news.id) }}" class="btn small">Read More →</a>
+            <a href="{{ url_for('blog_post', slug=news.id) }}" class="btn small">Read More →</a>
         </div>
         {% else %}
         <p>No news updates yet.</p>
@@ -58,14 +58,14 @@
 
     <!-- Horizontal service slider -->
     <div class="service-slider">
-        <div class="service-card">Penetration Testing</div>
-        <div class="service-card">Vulnerability Assessment</div>
-        <div class="service-card">Red Team Operations</div>
-        <div class="service-card">Security Awareness Training</div>
-        <div class="service-card">Digital Forensics</div>
-        <div class="service-card">Android Controls</div>
-        <div class="service-card">Social Media</div>
-        <div class="service-card">Others</div>
+        <a href="{{ url_for('tools') }}?category=Penetration%20Testing" class="service-card">Penetration Testing</a>
+        <a href="{{ url_for('tools') }}?category=Vulnerability%20Assessment" class="service-card">Vulnerability Assessment</a>
+        <a href="{{ url_for('tools') }}?category=Red%20Team%20Operations" class="service-card">Red Team Operations</a>
+        <a href="{{ url_for('tools') }}?category=Security%20Awareness%20Training" class="service-card">Security Awareness Training</a>
+        <a href="{{ url_for('tools') }}?category=Digital%20Forensics" class="service-card">Digital Forensics</a>
+        <a href="{{ url_for('tools') }}?category=Android%20Controls" class="service-card">Android Controls</a>
+        <a href="{{ url_for('tools') }}?category=Social%20Media" class="service-card">Social Media</a>
+        <a href="{{ url_for('tools') }}?category=Other" class="service-card">Others</a>
     </div>
 </section>
 
@@ -95,9 +95,9 @@
         <h2>Let's Secure Your Digital Infrastructure</h2>
         <p>Partner with us to identify vulnerabilities, strengthen defenses, and build a resilient security posture. Our experts provide tailored solutions for your organization.</p>
         <ul class="highlights">
-            <li>🔒 Expert-led penetration testing</li>
-            <li>🔍 Comprehensive vulnerability assessments</li>
-            <li>🛡️ Custom security training</li>
+            <li><i class="fas fa-shield-alt"></i> Expert-led penetration testing</li>
+            <li><i class="fas fa-search"></i> Comprehensive vulnerability assessments</li>
+            <li><i class="fas fa-lock"></i> Custom security training</li>
         </ul>
     </div>
     <div class="contact-right">
@@ -105,21 +105,21 @@
             {{ contact_form.hidden_tag() }}
             <div class="form-group">
                 {{ contact_form.name.label }}
-                {{ contact_form.name(class="form-control") }}
+                {{ contact_form.name(class="form-control", placeholder="Your name") }}
             </div>
             <div class="form-group">
                 {{ contact_form.email.label }}
-                {{ contact_form.email(class="form-control") }}
+                {{ contact_form.email(class="form-control", placeholder="Your email") }}
             </div>
             <div class="form-group">
                 {{ contact_form.message.label }}
-                {{ contact_form.message(class="form-control", rows=4) }}
+                {{ contact_form.message(class="form-control", rows=4, placeholder="Your message") }}
             </div>
             <div class="form-group">
                 {{ contact_form.captcha.label }}
-                {{ contact_form.captcha(class="form-control") }}
+                {{ contact_form.captcha(class="form-control", placeholder="Enter result") }}
             </div>
-            <button type="submit" class="btn primary">Submit</button>
+            <button type="submit" class="btn primary">Send Message</button>
         </form>
     </div>
 </section>

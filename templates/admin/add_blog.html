@@ -1,45 +1,44 @@
 {% extends "base.html" %}
 {% block title %}Add Blog Post{% endblock %}
 {% block content %}
-<h1 class="center">Add Blog Post</h1>
-
-<div class="form-container">
-    <form method="POST" enctype="multipart/form-data">
+<div class="centered-form">
+    <h1 class="form-title">Add Blog Post</h1>
+    <form method="POST" enctype="multipart/form-data" class="modern-form">
         {{ form.hidden_tag() }}
         <div class="form-group">
-            {{ form.title.label }}
-            {{ form.title(class="form-control") }}
-        </div>
-        <div class="form-group">
-            {{ form.slug.label }}
-            {{ form.slug(class="form-control") }}
-            <small>URL-friendly version (e.g., my-blog-post)</small>
-        </div>
-        <div class="form-group">
-            {{ form.excerpt.label }}
-            {{ form.excerpt(class="form-control", rows=4) }}
-        </div>
-        <div class="form-group">
-            {{ form.content.label }}
-            {{ form.content(class="form-control", id="content", rows=15) }}
-            <button type="button" id="upload-image-btn" class="btn secondary">Upload Image</button>
-            <input type="file" id="image-upload" accept="image/*" style="display:none;">
-            <small>Markdown supported. Code blocks with triple backticks will be highlighted.</small>
-        </div>
-        <div class="form-group">
-            {{ form.featured_image.label }}
+            {{ form.featured_image.label(class="form-label") }}
             {{ form.featured_image(class="form-control-file") }}
             <small>Optional: Featured image for blog card.</small>
         </div>
         <div class="form-group">
-            {{ form.tags.label }}
-            {{ form.tags(class="form-control") }}
+            {{ form.title.label(class="form-label") }}
+            {{ form.title(class="form-control", placeholder="Post title") }}
+        </div>
+        <div class="form-group">
+            {{ form.slug.label(class="form-label") }}
+            {{ form.slug(class="form-control", placeholder="url-friendly-version") }}
+            <small>URL-friendly version (e.g., my-blog-post)</small>
+        </div>
+        <div class="form-group">
+            {{ form.excerpt.label(class="form-label") }}
+            {{ form.excerpt(class="form-control", rows=4, placeholder="Short excerpt") }}
+        </div>
+        <div class="form-group">
+            {{ form.content.label(class="form-label") }}
+            {{ form.content(class="form-control", id="content", rows=15, placeholder="Write your content in Markdown...") }}
+            <button type="button" id="upload-image-btn" class="btn small"><i class="fas fa-image"></i> Upload Image</button>
+            <input type="file" id="image-upload" accept="image/*" style="display:none;">
+            <small>Markdown supported. Code blocks with triple backticks will be highlighted.</small>
+        </div>
+        <div class="form-group">
+            {{ form.tags.label(class="form-label") }}
+            {{ form.tags(class="form-control", placeholder="comma, separated, tags") }}
             <small>Comma-separated tags</small>
         </div>
         <div class="form-group">
             {{ form.published() }} {{ form.published.label }}
         </div>
-        <button type="submit" class="btn primary">Add Blog Post</button>
+        <button type="submit" class="btn primary full-width">Add Blog Post</button>
     </form>
 </div>
 
