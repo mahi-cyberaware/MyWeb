@@ -28,6 +28,7 @@ if database_url and database_url.startswith('postgres://'):
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# Cloudinary
 cloudinary.config(
     cloud_name=os.environ.get('CLOUDINARY_CLOUD_NAME'),
     api_key=os.environ.get('CLOUDINARY_API_KEY'),
@@ -35,6 +36,7 @@ cloudinary.config(
     secure=True
 )
 
+# Email
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
@@ -63,14 +65,14 @@ def render_markdown(text):
         'nl2br'
     ])
 
-# ================== DATABASE INIT ==================
+# ================== DATABASE INIT (BASIC) ==================
 _first_request_done = False
 
 @app.before_request
 def before_first_request():
     global _first_request_done
     if not _first_request_done:
-        db.create_all()
+        db.create_all()  # Creates only missing tables
         if not User.query.filter_by(role='admin').first():
             admin = User(
                 username='admin',
@@ -96,26 +98,40 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-# ================== TEMPORARY MIGRATION ROUTE ==================
-@app.route('/migrate-db')
-def migrate_db():
-    """ONE-TIME route to add missing columns. DELETE AFTER USE!"""
+# ================== COMPREHENSIVE DATABASE FIX ROUTE ==================
+@app.route('/fix-db')
+def fix_database():
+    """
+    ONE-TIME route to ensure all tables and required columns exist.
+    DELETE AFTER USE!
+    """
     try:
+        # Create all tables (safe, will skip existing)
+        db.create_all()
         inspector = inspect(db.engine)
-        # Check if 'image_url' column exists in 'tool' table
+
+        # --- Fix 'tool' table: add image_url if missing ---
         if 'tool' in inspector.get_table_names():
             columns = [col['name'] for col in inspector.get_columns('tool')]
             if 'image_url' not in columns:
                 with db.engine.connect() as conn:
                     conn.execute(text('ALTER TABLE tool ADD COLUMN image_url VARCHAR(300)'))
                     conn.commit()
-                return "✅ Added 'image_url' column to 'tool' table.<br>Now delete this route!"
+                msg = "Added 'image_url' column to 'tool' table.<br>"
             else:
-                return "Column already exists."
+                msg = "'image_url' column already exists in 'tool' table.<br>"
         else:
-            return "Table 'tool' not found. Maybe run db.create_all() first?"
+            msg = "'tool' table not found (should have been created).<br>"
+
+        # --- Ensure 'news' table exists (created by db.create_all) ---
+        if 'news' in inspector.get_table_names():
+            msg += "'news' table exists.<br>"
+        else:
+            msg += "'news' table was created now.<br>"
+
+        return f"✅ Database fix completed.<br>{msg}<br>You can now delete this route."
     except Exception as e:
-        return f"Error: {e}"
+        return f"❌ Error: {e}"
 
 # ================== PUBLIC ROUTES ==================
 @app.route('/')
