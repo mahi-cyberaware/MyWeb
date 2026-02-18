@@ -46,6 +46,7 @@
             <a href="{{ url_for('tools') }}">Tools</a>
             <a href="{{ url_for('gallery') }}">Gallery</a>
             <a href="{{ url_for('blog') }}">Blog</a>
+            <a href="{{ url_for('home') }}#news">News</a>
             <a href="{{ url_for('contact') }}">Contact</a>
             {% if current_user.is_authenticated %}
                 {% if current_user.is_admin() %}
