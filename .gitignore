@@ -7,3 +7,4 @@ instance/
 *.db
 uploads/
 *-backup.py
+static/backup-style.css
