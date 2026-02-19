@@ -13,9 +13,9 @@
 
 <!-- Search Bar -->
 <div class="search-container">
-    <form method="GET" action="{{ url_for('gallery') }}">
-        <input type="hidden" name="type" value="{{ file_type }}">
-        <input type="text" name="search" id="gallery-search" placeholder="Search in current tab..." value="{{ search }}">
+    <form method="GET" action="{{ url_for('gallery') }}" id="gallery-search-form">
+        <input type="hidden" name="type" id="search-type" value="{{ file_type }}">
+        <input type="text" name="search" id="gallery-search-input" placeholder="Search in current tab..." value="{{ search }}">
         <button type="submit" class="btn primary" style="width: auto; margin-left: 0.5rem;">Search</button>
     </form>
 </div>
@@ -33,26 +33,30 @@
     <div class="file-card">
         {% if file.file_type == 'image' %}
             <img src="{{ file.stored_filename }}" alt="{{ file.filename }}">
-        {% elif file.file_type == 'video' %}
-            <video controls>
-                <source src="{{ file.stored_filename }}" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-        {% else %}
-            <div class="file-info" style="padding: 1rem;">
+            <div class="file-info">
                 <div class="file-name">{{ file.filename }}</div>
                 <div class="file-meta">{{ (file.size/1024)|round }} KB</div>
                 {% if file.description %}<div class="file-description">{{ file.description }}</div>{% endif %}
                 <a href="{{ file.stored_filename }}" target="_blank" download class="download-btn">Download</a>
             </div>
-        {% endif %}
-        {% if file.file_type != 'code' %}
-        <div class="file-info">
-            <div class="file-name">{{ file.filename }}</div>
-            <div class="file-meta">{{ (file.size/1024)|round }} KB</div>
-            {% if file.description %}<div class="file-description">{{ file.description }}</div>{% endif %}
-            <a href="{{ file.stored_filename }}" target="_blank" download class="download-btn">Download</a>
-        </div>
+        {% elif file.file_type == 'video' %}
+            <video controls>
+                <source src="{{ file.stored_filename }}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <div class="file-info">
+                <div class="file-name">{{ file.filename }}</div>
+                <div class="file-meta">{{ (file.size/1024)|round }} KB</div>
+                {% if file.description %}<div class="file-description">{{ file.description }}</div>{% endif %}
+                <a href="{{ file.stored_filename }}" target="_blank" download class="download-btn">Download</a>
+            </div>
+        {% else %}
+            <div class="file-info">
+                <div class="file-name">{{ file.filename }}</div>
+                <div class="file-meta">{{ (file.size/1024)|round }} KB</div>
+                {% if file.description %}<div class="file-description">{{ file.description }}</div>{% endif %}
+                <a href="{{ file.stored_filename }}" target="_blank" download class="download-btn">Download</a>
+            </div>
         {% endif %}
     </div>
     {% else %}
