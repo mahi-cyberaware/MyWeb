@@ -98,33 +98,41 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-# ================== ONE-TIME MIGRATION ROUTE (remove after use) ==================
+# ================== ONE-TIME MIGRATION ROUTE ==================
+# Run this route ONCE after deployment to add missing columns.
+# After successful execution, REMOVE or comment out this route.
 @app.route('/fix-news-schema')
 def fix_news_schema():
-    """ONE-TIME route to add slug column to news table and populate slugs."""
+    """Add slug and category columns to news table and populate slugs."""
     try:
         inspector = inspect(db.engine)
         if 'news' in inspector.get_table_names():
             cols = [c['name'] for c in inspector.get_columns('news')]
-            if 'slug' not in cols:
-                with db.engine.connect() as conn:
+            with db.engine.connect() as conn:
+                # Add slug column if missing
+                if 'slug' not in cols:
                     conn.execute(text('ALTER TABLE news ADD COLUMN slug VARCHAR(200) UNIQUE'))
                     conn.commit()
-                # Generate slugs for existing news
-                news_items = News.query.all()
-                for item in news_items:
-                    if not item.slug:
-                        base_slug = slugify(item.title)
-                        slug = base_slug
-                        counter = 1
-                        while News.query.filter_by(slug=slug).first():
-                            slug = f"{base_slug}-{counter}"
-                            counter += 1
-                        item.slug = slug
-                db.session.commit()
-                return "✅ Added slug column and generated slugs for existing news. You can now remove this route."
-            else:
-                return "Column 'slug' already exists."
+                # Add category column if missing (with default 'General')
+                if 'category' not in cols:
+                    conn.execute(text('ALTER TABLE news ADD COLUMN category VARCHAR(100) DEFAULT \'General\''))
+                    conn.commit()
+            # Generate slugs for existing news
+            news_items = News.query.all()
+            for item in news_items:
+                if not item.slug:
+                    base_slug = slugify(item.title)
+                    slug = base_slug
+                    counter = 1
+                    while News.query.filter_by(slug=slug).first():
+                        slug = f"{base_slug}-{counter}"
+                        counter += 1
+                    item.slug = slug
+                # Set default category if none
+                if not item.category:
+                    item.category = 'General'
+            db.session.commit()
+            return "✅ Added slug and category columns to news table, and populated existing records. You can now remove this route."
         else:
             return "Table 'news' not found."
     except Exception as e:
