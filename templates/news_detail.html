@@ -1,20 +1,52 @@
 {% extends "base.html" %}
 {% block title %}{{ news.title }}{% endblock %}
 {% block content %}
+
 <article class="post-container">
     <h1>{{ news.title }}</h1>
-    <div class="post-meta">
-        {{ news.date_posted.strftime('%d/%m/%Y') }}
-    </div>
-    
+    <div class="post-meta">{{ news.date_posted.strftime('%d/%m/%Y') }}</div>
+
     {% if news.image_url %}
         <img src="{{ news.image_url }}" alt="{{ news.title }}" class="featured-image">
     {% endif %}
-    
+
+    {% if news.excerpt %}
+        <p class="excerpt">{{ news.excerpt }}</p>
+    {% endif %}
+
     <div class="post-content">
         {{ news.content|markdown|safe }}
     </div>
-    
-    <a href="{{ url_for('home') }}#news" class="back-btn">← Back to News</a>
+
+    <!-- Social Share Buttons (UI only) -->
+    <div class="share-buttons">
+        <span>Share:</span>
+        <a href="#" class="share-btn"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" class="share-btn"><i class="fab fa-x-twitter"></i></a>
+        <a href="#" class="share-btn"><i class="fab fa-linkedin-in"></i></a>
+        <a href="#" class="share-btn"><i class="fab fa-whatsapp"></i></a>
+    </div>
+
+    <a href="{{ url_for('news_list') }}" class="back-btn">← Back to News</a>
 </article>
+
+<!-- Related Posts -->
+{% if related %}
+<section class="related-posts">
+    <h2>Related News</h2>
+    <div class="card-grid">
+        {% for item in related %}
+        <div class="news-card">
+            {% if item.image_url %}
+                <img src="{{ item.image_url }}" alt="{{ item.title }}" class="card-image">
+            {% endif %}
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.excerpt or item.content[:150] }}...</p>
+            <a href="{{ url_for('news_detail', slug=item.slug) }}" class="btn small">Read More →</a>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
 {% endblock %}

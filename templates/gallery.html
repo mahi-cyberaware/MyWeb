@@ -11,119 +11,76 @@
     </div>
 </section>
 
-<!-- Search Bar (filters within active tab) -->
+<!-- Search Bar -->
 <div class="search-container">
-    <input type="text" id="gallery-search" placeholder="Search in current tab...">
+    <form method="GET" action="{{ url_for('gallery') }}">
+        <input type="hidden" name="type" value="{{ file_type }}">
+        <input type="text" name="search" id="gallery-search" placeholder="Search in current tab..." value="{{ search }}">
+        <button type="submit" class="btn primary" style="width: auto; margin-left: 0.5rem;">Search</button>
+    </form>
 </div>
 
 <!-- Tabs -->
 <div class="gallery-tabs centered">
-    <button class="tab active" data-tab="images">Images</button>
-    <button class="tab" data-tab="videos">Videos</button>
-    <button class="tab" data-tab="code">Code Files</button>
+    <a href="{{ url_for('gallery', type='images', search=search) }}" class="tab {% if file_type == 'images' %}active{% endif %}">Images ({{ images_count }})</a>
+    <a href="{{ url_for('gallery', type='videos', search=search) }}" class="tab {% if file_type == 'videos' %}active{% endif %}">Videos ({{ videos_count }})</a>
+    <a href="{{ url_for('gallery', type='code', search=search) }}" class="tab {% if file_type == 'code' %}active{% endif %}">Code Files ({{ code_count }})</a>
 </div>
 
-<!-- Gallery Content -->
-<div class="gallery-content">
-    <!-- Images Tab -->
-    <div class="tab-pane active" id="images">
-        {% if images %}
-            <div class="file-grid" id="images-grid">
-            {% for file in images %}
-                <div class="file-card searchable-item">
-                    <img src="{{ file.stored_filename }}" alt="{{ file.filename }}">
-                    <div class="file-info">
-                        <div class="file-name">{{ file.filename }}</div>
-                        <div class="file-meta">{{ (file.size/1024)|round }} KB</div>
-                        {% if file.description %}<div class="file-description">{{ file.description }}</div>{% endif %}
-                        <a href="{{ file.stored_filename }}" target="_blank" download class="download-btn">Download</a>
-                    </div>
-                </div>
-            {% endfor %}
-            </div>
+<!-- File Grid -->
+<div class="file-grid">
+    {% for file in files %}
+    <div class="file-card">
+        {% if file.file_type == 'image' %}
+            <img src="{{ file.stored_filename }}" alt="{{ file.filename }}">
+        {% elif file.file_type == 'video' %}
+            <video controls>
+                <source src="{{ file.stored_filename }}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
         {% else %}
-            <p class="center">No images found.</p>
+            <div class="file-info" style="padding: 1rem;">
+                <div class="file-name">{{ file.filename }}</div>
+                <div class="file-meta">{{ (file.size/1024)|round }} KB</div>
+                {% if file.description %}<div class="file-description">{{ file.description }}</div>{% endif %}
+                <a href="{{ file.stored_filename }}" target="_blank" download class="download-btn">Download</a>
+            </div>
+        {% endif %}
+        {% if file.file_type != 'code' %}
+        <div class="file-info">
+            <div class="file-name">{{ file.filename }}</div>
+            <div class="file-meta">{{ (file.size/1024)|round }} KB</div>
+            {% if file.description %}<div class="file-description">{{ file.description }}</div>{% endif %}
+            <a href="{{ file.stored_filename }}" target="_blank" download class="download-btn">Download</a>
+        </div>
         {% endif %}
     </div>
-
-    <!-- Videos Tab -->
-    <div class="tab-pane" id="videos">
-        {% if videos %}
-            <div class="file-grid" id="videos-grid">
-            {% for file in videos %}
-                <div class="file-card searchable-item">
-                    <video controls>
-                        <source src="{{ file.stored_filename }}" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                    <div class="file-info">
-                        <div class="file-name">{{ file.filename }}</div>
-                        <div class="file-meta">{{ (file.size/1024)|round }} KB</div>
-                        {% if file.description %}<div class="file-description">{{ file.description }}</div>{% endif %}
-                        <a href="{{ file.stored_filename }}" target="_blank" download class="download-btn">Download</a>
-                    </div>
-                </div>
-            {% endfor %}
-            </div>
-        {% else %}
-            <p class="center">No videos found.</p>
-        {% endif %}
-    </div>
-
-    <!-- Code Files Tab -->
-    <div class="tab-pane" id="code">
-        {% if code_files %}
-            <div class="file-grid" id="code-grid">
-            {% for file in code_files %}
-                <div class="file-card searchable-item">
-                    <div class="file-info">
-                        <div class="file-name">{{ file.filename }}</div>
-                        <div class="file-meta">{{ (file.size/1024)|round }} KB</div>
-                        {% if file.description %}<div class="file-description">{{ file.description }}</div>{% endif %}
-                        <a href="{{ file.stored_filename }}" target="_blank" download class="download-btn">Download</a>
-                    </div>
-                </div>
-            {% endfor %}
-            </div>
-        {% else %}
-            <p class="center">No code files found.</p>
-        {% endif %}
-    </div>
+    {% else %}
+    <p class="center">No files found in this category.</p>
+    {% endfor %}
 </div>
 
-<!-- Pagination (if needed) -->
-{% if images_pagination and images_pagination.pages > 1 %}
+<!-- Pagination -->
+{% if pagination.pages > 1 %}
 <div class="pagination">
-    <!-- your pagination links -->
+    {% if pagination.has_prev %}
+        <a href="{{ url_for('gallery', page=pagination.prev_num, type=file_type, search=search) }}">&laquo; Previous</a>
+    {% endif %}
+    {% for page_num in pagination.iter_pages() %}
+        {% if page_num %}
+            {% if page_num == pagination.page %}
+                <strong>{{ page_num }}</strong>
+            {% else %}
+                <a href="{{ url_for('gallery', page=page_num, type=file_type, search=search) }}">{{ page_num }}</a>
+            {% endif %}
+        {% else %}
+            <span>...</span>
+        {% endif %}
+    {% endfor %}
+    {% if pagination.has_next %}
+        <a href="{{ url_for('gallery', page=pagination.next_num, type=file_type, search=search) }}">Next &raquo;</a>
+    {% endif %}
 </div>
 {% endif %}
 
-<script>
-// Tab switching
-document.querySelectorAll('.tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-        document.getElementById(tab.dataset.tab).classList.add('active');
-        // Clear search
-        document.getElementById('gallery-search').value = '';
-        document.querySelectorAll('.file-card').forEach(card => card.style.display = 'block');
-    });
-});
-
-// Search within active tab
-const gallerySearch = document.getElementById('gallery-search');
-if (gallerySearch) {
-    gallerySearch.addEventListener('input', function() {
-        const query = this.value.toLowerCase();
-        const activePane = document.querySelector('.tab-pane.active');
-        const items = activePane.querySelectorAll('.searchable-item');
-        items.forEach(item => {
-            const text = item.textContent.toLowerCase();
-            item.style.display = text.includes(query) ? 'block' : 'none';
-        });
-    });
-}
-</script>
 {% endblock %}

@@ -2,13 +2,13 @@
 {% block title %}Home{% endblock %}
 {% block content %}
 
-<!-- Hero Section (full width) -->
+<!-- Hero Section -->
 <section class="hero-section" style="background-image: url('{{ url_for('static', filename='assets/homehero.png') }}');">
     <div class="hero-overlay"></div>
     <div class="hero-content">
         <h1 class="glitch" data-text="Mahi Cyberaware">Mahi Cyberaware</h1>
         <p class="hero-tagline">Strengthening Digital Security Through Ethical Innovation</p>
-        <p class="hero-description">We provide cutting-edge cybersecurity tools, research, and training to help you stay ahead of threats. Join our community of ethical hackers and security professionals.</p>
+        <p class="hero-description">We provide cutting‑edge cybersecurity tools, research, and training to help you stay ahead of threats. Join our community of ethical hackers and security professionals.</p>
         <div class="hero-buttons">
             {% if current_user.is_authenticated %}
                 <a href="{{ url_for('tools') }}" class="btn primary">Explore Tools</a>
@@ -21,7 +21,7 @@
     </div>
 </section>
 
-<!-- Stats Section (full width) -->
+<!-- Stats Section -->
 <section class="stats-section">
     <div class="section-container">
         <div class="stats-container">
@@ -53,7 +53,7 @@
     </div>
 </section>
 
-<!-- News Section (full width) -->
+<!-- News Section -->
 <section class="news-section" id="news">
     <div class="section-container">
         <h2 class="section-title">Explore Our Latest News Insights</h2>
@@ -66,7 +66,7 @@
                 {% endif %}
                 <h3>{{ news.title }}</h3>
                 <p>{{ news.excerpt or news.content[:100] }}...</p>
-                <a href="{{ url_for('news_detail', id=news.id) }}" class="btn small">Read More →</a>
+                <a href="{{ url_for('news_detail', slug=news.slug) }}" class="btn small">Read More →</a>
             </div>
             {% else %}
             <p>No news updates yet.</p>
@@ -75,7 +75,7 @@
     </div>
 </section>
 
-<!-- Service Slider Section (full width) -->
+<!-- Service Slider Section -->
 <section class="service-slider-section">
     <div class="section-container">
         <div class="service-slider">
@@ -91,7 +91,7 @@
     </div>
 </section>
 
-<!-- Blogs Section (full width) -->
+<!-- Blogs Section -->
 <section class="blogs-section">
     <div class="section-container">
         <h2 class="section-title">Explore Our Latest Insights</h2>
@@ -113,7 +113,7 @@
     </div>
 </section>
 
-<!-- Contact Section (full width) -->
+<!-- Contact Section (2 columns) -->
 <section class="contact-section-wrapper">
     <div class="section-container">
         <div class="contact-section">

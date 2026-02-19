@@ -40,10 +40,12 @@ class BlogPost(db.Model):
 class News(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
+    slug = db.Column(db.String(200), unique=True, nullable=False)  # new slug field
     excerpt = db.Column(db.Text)
     content = db.Column(db.Text, nullable=False)
     image_url = db.Column(db.String(300))
     date_posted = db.Column(db.DateTime, default=datetime.utcnow)
+    category = db.Column(db.String(100), default='General')  # optional for related posts
 
 class GalleryFile(db.Model):
     id = db.Column(db.Integer, primary_key=True)

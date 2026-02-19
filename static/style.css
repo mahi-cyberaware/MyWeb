@@ -1152,3 +1152,122 @@ button[type="submit"] {
         text-align: center;
     }
 }
+/* ===== NEWS PAGE LAYOUT ===== */
+.news-layout {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.news-main {
+    width: 100%;
+}
+
+.news-sidebar {
+    background: var(--bg-secondary);
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--border);
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+}
+
+.news-sidebar h3 {
+    color: var(--accent);
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.news-sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.news-sidebar li {
+    margin-bottom: 0.75rem;
+}
+
+.news-sidebar a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.news-sidebar a:hover {
+    color: var(--accent);
+}
+
+/* ===== SHARE BUTTONS ===== */
+.share-buttons {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 2rem 0;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.share-buttons span {
+    font-weight: 600;
+    color: var(--accent);
+}
+
+.share-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--bg-primary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+    font-size: 1rem;
+}
+
+.share-btn:hover {
+    background: var(--accent);
+    color: #000;
+    transform: translateY(-2px);
+}
+
+/* ===== RELATED POSTS ===== */
+.related-posts {
+    margin-top: 3rem;
+}
+
+.related-posts h2 {
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+}
+
+/* ===== SEARCH FORM ADJUSTMENTS ===== */
+.search-container form {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.search-container input[type="text"] {
+    flex: 0 1 400px;
+}
+
+.search-container button {
+    width: auto;
+    padding: 0.8rem 2rem;
+}
+
+/* ===== RESPONSIVE NEWS ===== */
+@media (max-width: 768px) {
+    .news-layout {
+        grid-template-columns: 1fr;
+    }
+    .news-sidebar {
+        position: static;
+        margin-top: 2rem;
+    }
+}

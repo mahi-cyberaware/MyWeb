@@ -13,21 +13,24 @@
 
 <!-- Search Bar -->
 <div class="search-container">
-    <input type="text" id="search-input" placeholder="Search tools...">
+    <form method="GET" action="{{ url_for('tools') }}">
+        <input type="text" name="search" id="search-input" placeholder="Search tools..." value="{{ search }}">
+        <button type="submit" class="btn primary" style="width: auto; margin-left: 0.5rem;">Search</button>
+    </form>
 </div>
 
 <!-- Category Filter -->
 <div class="tool-filters">
-    <button class="filter active" data-filter="all">All Tools</button>
-    {% for category in categories %}
-        <button class="filter" data-filter="{{ category }}">{{ category }}</button>
-    {% endfor %}
+    <a href="{{ url_for('tools', search=search, category='all') }}" class="filter {% if current_category == '' or current_category == 'all' %}active{% endif %}">All Tools</a>
+    <a href="{{ url_for('tools', search=search, category='OSINT') }}" class="filter {% if current_category == 'OSINT' %}active{% endif %}">OSINT / Security Research</a>
+    <a href="{{ url_for('tools', search=search, category='Penetration Testing') }}" class="filter {% if current_category == 'Penetration Testing' %}active{% endif %}">Penetration Testing</a>
+    <a href="{{ url_for('tools', search=search, category='Other') }}" class="filter {% if current_category == 'Other' %}active{% endif %}">Other</a>
 </div>
 
 <!-- Tools Grid -->
 <div class="tools-grid">
     {% for tool in tools %}
-    <div class="tool-card searchable-item" data-category="{{ tool.category }}">
+    <div class="tool-card">
         {% if tool.image_url %}
             <img src="{{ tool.image_url }}" alt="{{ tool.title }}" class="tool-image">
         {% endif %}
@@ -49,7 +52,7 @@
         </div>
     </div>
     {% else %}
-    <p class="center">No tools yet.</p>
+    <p class="center">No tools found.</p>
     {% endfor %}
 </div>
 
@@ -57,40 +60,23 @@
 {% if pagination.pages > 1 %}
 <div class="pagination">
     {% if pagination.has_prev %}
-        <a href="{{ url_for('tools', page=pagination.prev_num) }}">&laquo; Previous</a>
+        <a href="{{ url_for('tools', page=pagination.prev_num, search=search, category=current_category) }}">&laquo; Previous</a>
     {% endif %}
     {% for page_num in pagination.iter_pages() %}
         {% if page_num %}
             {% if page_num == pagination.page %}
                 <strong>{{ page_num }}</strong>
             {% else %}
-                <a href="{{ url_for('tools', page=page_num) }}">{{ page_num }}</a>
+                <a href="{{ url_for('tools', page=page_num, search=search, category=current_category) }}">{{ page_num }}</a>
             {% endif %}
         {% else %}
             <span>...</span>
         {% endif %}
     {% endfor %}
     {% if pagination.has_next %}
-        <a href="{{ url_for('tools', page=pagination.next_num) }}">Next &raquo;</a>
+        <a href="{{ url_for('tools', page=pagination.next_num, search=search, category=current_category) }}">Next &raquo;</a>
     {% endif %}
 </div>
 {% endif %}
 
-<script>
-// Filter buttons
-document.querySelectorAll('.filter').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.filter').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const filter = btn.dataset.filter;
-        document.querySelectorAll('.tool-card').forEach(card => {
-            if (filter === 'all' || card.dataset.category === filter) {
-                card.style.display = 'block';
-            } else {
-                card.style.display = 'none';
-            }
-        });
-    });
-});
-</script>
 {% endblock %}
