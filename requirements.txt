@@ -21,3 +21,4 @@ WTForms==3.2.1
 gunicorn          # for production server
 psycopg2-binary   # for PostgreSQL
 cloudinary        # for storage
+python-slugify
