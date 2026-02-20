@@ -2,7 +2,7 @@
 {% block title %}{{ news.title }}{% endblock %}
 {% block content %}
 
-<article class="post-container">
+<article class="news-detail">
     <h1>{{ news.title }}</h1>
     <div class="post-meta">{{ news.date_posted.strftime('%d/%m/%Y') }}</div>
 
@@ -14,36 +14,29 @@
         <p class="excerpt">{{ news.excerpt }}</p>
     {% endif %}
 
-    <div class="post-content">
+    <div class="content">
         {{ news.content|markdown|safe }}
-    </div>
-
-    <!-- Social Share Buttons (UI only) -->
-    <div class="share-buttons">
-        <span>Share:</span>
-        <a href="#" class="share-btn"><i class="fab fa-facebook-f"></i></a>
-        <a href="#" class="share-btn"><i class="fab fa-x-twitter"></i></a>
-        <a href="#" class="share-btn"><i class="fab fa-linkedin-in"></i></a>
-        <a href="#" class="share-btn"><i class="fab fa-whatsapp"></i></a>
     </div>
 
     <a href="{{ url_for('news_list') }}" class="back-btn">← Back to News</a>
 </article>
 
-<!-- Related Posts -->
 {% if related %}
 <section class="related-posts">
     <h2>Related News</h2>
-    <div class="card-grid">
+    <div class="news-grid">
         {% for item in related %}
-        <div class="news-card">
+        <article class="news-card">
             {% if item.image_url %}
                 <img src="{{ item.image_url }}" alt="{{ item.title }}" class="card-image">
             {% endif %}
-            <h3>{{ item.title }}</h3>
-            <p>{{ item.excerpt or item.content[:150] }}...</p>
-            <a href="{{ url_for('news_detail', slug=item.slug) }}" class="btn small">Read More →</a>
-        </div>
+            <div class="card-content">
+                <h2><a href="{{ url_for('news_detail', slug=item.slug) }}">{{ item.title }}</a></h2>
+                <div class="post-meta">{{ item.date_posted.strftime('%d/%m/%Y') }}</div>
+                <p class="post-excerpt">{{ item.excerpt or item.content[:150] }}...</p>
+                <a href="{{ url_for('news_detail', slug=item.slug) }}" class="read-more">Read More →</a>
+            </div>
+        </article>
         {% endfor %}
     </div>
 </section>
