@@ -1026,6 +1026,77 @@ main {
     margin-bottom: 1.5rem;
 }
 
+/* ===== FORM CENTERING (old, nice design) ===== */
+.form-container {
+    max-width: 500px;
+    margin: 2rem auto;
+    padding: 2.5rem;
+    background: var(--bg-secondary);
+    border-radius: 1rem;
+    border: 1px solid var(--border);
+    box-shadow: var(--card-shadow);
+}
+
+.form-container h1 {
+    color: var(--accent);
+    margin-bottom: 2rem;
+    text-align: center;
+    font-size: 2.2rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.form-control,
+.form-control-file,
+select.form-control,
+textarea.form-control {
+    width: 100%;
+    padding: 0.9rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    transition: border-color 0.2s;
+    font-size: 1rem;
+}
+
+.form-control:focus,
+select.form-control:focus,
+textarea.form-control:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+}
+
+textarea.form-control {
+    min-height: 120px;
+    resize: vertical;
+}
+
+button[type="submit"] {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.1rem;
+}
+
+/* ===== ADMIN PANEL CENTERING ===== */
+.admin-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin: 2rem 0;
+    flex-wrap: wrap;
+}
+
 /* ===== PAGINATION ===== */
 .pagination {
     display: flex;
