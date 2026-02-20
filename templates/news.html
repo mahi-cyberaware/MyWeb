@@ -6,62 +6,61 @@
 <section class="page-hero" style="background-image: url('{{ url_for('static', filename='assets/newshero.png') }}');">
     <div class="hero-overlay"></div>
     <div class="hero-content">
-        <h1>NEWS</h1>
+        <h1>News</h1>
         <p>Latest updates and announcements from the cybersecurity world.</p>
     </div>
 </section>
 
-<div class="news-layout">
-    <!-- Main News Grid -->
-    <div class="news-main">
-        <div class="card-grid">
-            {% for news in news_items %}
-            <div class="news-card">
-                {% if news.image_url %}
-                    <img src="{{ news.image_url }}" alt="{{ news.title }}" class="card-image">
-                {% endif %}
-                <h3>{{ news.title }}</h3>
-                <p>{{ news.excerpt or news.content[:150] }}...</p>
-                <a href="{{ url_for('news_detail', slug=news.slug) }}" class="btn small">Read More →</a>
-            </div>
-            {% else %}
-            <p>No news available.</p>
-            {% endfor %}
-        </div>
-
-        <!-- Pagination -->
-        {% if pagination.pages > 1 %}
-        <div class="pagination">
-            {% if pagination.has_prev %}
-                <a href="{{ url_for('news_list', page=pagination.prev_num) }}">&laquo; Previous</a>
-            {% endif %}
-            {% for page_num in pagination.iter_pages() %}
-                {% if page_num %}
-                    {% if page_num == pagination.page %}
-                        <strong>{{ page_num }}</strong>
-                    {% else %}
-                        <a href="{{ url_for('news_list', page=page_num) }}">{{ page_num }}</a>
-                    {% endif %}
-                {% else %}
-                    <span>...</span>
-                {% endif %}
-            {% endfor %}
-            {% if pagination.has_next %}
-                <a href="{{ url_for('news_list', page=pagination.next_num) }}">Next &raquo;</a>
-            {% endif %}
-        </div>
-        {% endif %}
-    </div>
-
-    <!-- Sidebar: Trending News -->
-    <aside class="news-sidebar">
-        <h3>Trending News</h3>
-        <ul>
-            {% for item in trending %}
-            <li><a href="{{ url_for('news_detail', slug=item.slug) }}">{{ item.title }}</a></li>
-            {% endfor %}
-        </ul>
-    </aside>
+<!-- Search Bar (optional) – if you want search, uncomment -->
+<!--
+<div class="search-container">
+    <form method="GET" action="{{ url_for('news_list') }}">
+        <input type="text" name="search" placeholder="Search news..." value="{{ search }}">
+        <button type="submit" class="btn primary">Search</button>
+    </form>
 </div>
+-->
+
+<!-- News Grid -->
+<div class="news-grid">
+    {% for news in news_items %}
+    <article class="news-card">
+        {% if news.image_url %}
+            <img src="{{ news.image_url }}" alt="{{ news.title }}" class="card-image">
+        {% endif %}
+        <div class="card-content">
+            <h2><a href="{{ url_for('news_detail', slug=news.slug) }}">{{ news.title }}</a></h2>
+            <div class="post-meta">{{ news.date_posted.strftime('%d/%m/%Y') }}</div>
+            <p class="post-excerpt">{{ news.excerpt or news.content[:150] }}...</p>
+            <a href="{{ url_for('news_detail', slug=news.slug) }}" class="read-more">Read More →</a>
+        </div>
+    </article>
+    {% else %}
+    <p class="center">No news found.</p>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if pagination.pages > 1 %}
+<div class="pagination">
+    {% if pagination.has_prev %}
+        <a href="{{ url_for('news_list', page=pagination.prev_num) }}">&laquo; Previous</a>
+    {% endif %}
+    {% for page_num in pagination.iter_pages() %}
+        {% if page_num %}
+            {% if page_num == pagination.page %}
+                <strong>{{ page_num }}</strong>
+            {% else %}
+                <a href="{{ url_for('news_list', page=page_num) }}">{{ page_num }}</a>
+            {% endif %}
+        {% else %}
+            <span>...</span>
+        {% endif %}
+    {% endfor %}
+    {% if pagination.has_next %}
+        <a href="{{ url_for('news_list', page=pagination.next_num) }}">Next &raquo;</a>
+    {% endif %}
+</div>
+{% endif %}
 
 {% endblock %}

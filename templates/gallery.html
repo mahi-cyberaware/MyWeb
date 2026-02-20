@@ -13,15 +13,15 @@
 
 <!-- Search Bar -->
 <div class="search-container">
-    <form method="GET" action="{{ url_for('gallery') }}" id="gallery-search-form">
-        <input type="hidden" name="type" id="search-type" value="{{ file_type }}">
-        <input type="text" name="search" id="gallery-search-input" placeholder="Search in current tab..." value="{{ search }}">
-        <button type="submit" class="btn primary" style="width: auto; margin-left: 0.5rem;">Search</button>
+    <form method="GET" action="{{ url_for('gallery') }}">
+        <input type="hidden" name="type" value="{{ file_type }}">
+        <input type="text" name="search" placeholder="Search in current tab..." value="{{ search }}">
+        <button type="submit" class="btn primary">Search</button>
     </form>
 </div>
 
 <!-- Tabs -->
-<div class="gallery-tabs centered">
+<div class="gallery-tabs">
     <a href="{{ url_for('gallery', type='images', search=search) }}" class="tab {% if file_type == 'images' %}active{% endif %}">Images ({{ images_count }})</a>
     <a href="{{ url_for('gallery', type='videos', search=search) }}" class="tab {% if file_type == 'videos' %}active{% endif %}">Videos ({{ videos_count }})</a>
     <a href="{{ url_for('gallery', type='code', search=search) }}" class="tab {% if file_type == 'code' %}active{% endif %}">Code Files ({{ code_count }})</a>
